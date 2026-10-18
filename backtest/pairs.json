@@ -1,0 +1,443 @@
+{
+ "generated_at": "2026-10-18T17:16:02.719800+00:00",
+ "pairs": [
+  [
+   "BTCUSDT",
+   "ETHUSDT",
+   "die beiden Gro\u00dfen"
+  ],
+  [
+   "ETHUSDT",
+   "SOLUSDT",
+   "Smart-Contract-Plattformen"
+  ],
+  [
+   "OPUSDT",
+   "ARBUSDT",
+   "Ethereum-L2"
+  ],
+  [
+   "UNIUSDT",
+   "AAVEUSDT",
+   "DeFi"
+  ],
+  [
+   "DOGEUSDT",
+   "PEPEUSDT",
+   "Memes"
+  ],
+  [
+   "NEARUSDT",
+   "APTUSDT",
+   "Alt-L1"
+  ],
+  [
+   "ADAUSDT",
+   "DOTUSDT",
+   "Alt-L1, \u00e4ltere Generation"
+  ],
+  [
+   "LTCUSDT",
+   "ZECUSDT",
+   "Payment / Privacy"
+  ],
+  [
+   "SUIUSDT",
+   "APTUSDT",
+   "Move-L1"
+  ],
+  [
+   "LINKUSDT",
+   "INJUSDT",
+   "Infrastruktur"
+  ]
+ ],
+ "base": {
+  "name": "pairs_30d",
+  "lookback_bars": 180,
+  "entry_z": 2.0,
+  "exit_z": 0.5,
+  "stop_z": 4.0,
+  "max_bars": 90,
+  "leg_fraction": 0.4
+ },
+ "pairs_result": [
+  {
+   "pair": "BTCUSDT/ETHUSDT",
+   "sector": "die beiden Gro\u00dfen",
+   "half_life_days": 30.09269763999431,
+   "is": 0.3534484324603113,
+   "oos": -0.7014351273641211,
+   "full": -0.34798669490380973,
+   "trades": 3,
+   "wins": 1,
+   "exits": {
+    "zu_klein": 216,
+    "zeit": 2,
+    "ziel": 1
+   },
+   "fees": 0.1282073878224,
+   "funding": -0.02147648091859999,
+   "dd": 3.6925314311334603
+  },
+  {
+   "pair": "ETHUSDT/SOLUSDT",
+   "sector": "Smart-Contract-Plattformen",
+   "half_life_days": 18.998592267381408,
+   "is": 1.1033653116670195,
+   "oos": -0.9523422026219777,
+   "full": 0.1510231090450418,
+   "trades": 6,
+   "wins": 4,
+   "exits": {
+    "zu_klein": 210,
+    "ziel": 4,
+    "stop": 2
+   },
+   "fees": 0.23580990861599999,
+   "funding": -0.037236337661000006,
+   "dd": 5.8775647779569145
+  },
+  {
+   "pair": "OPUSDT/ARBUSDT",
+   "sector": "Ethereum-L2",
+   "half_life_days": 200.57043311423797,
+   "is": -8.403711412465384,
+   "oos": -8.742795923173645,
+   "full": -15.678475070871158,
+   "trades": 42,
+   "wins": 17,
+   "exits": {
+    "ziel": 9,
+    "zeit": 6,
+    "stop": 27
+   },
+   "fees": 1.7173514007452402,
+   "funding": -0.2892032496740303,
+   "dd": 40.576955792849205
+  },
+  {
+   "pair": "UNIUSDT/AAVEUSDT",
+   "sector": "DeFi",
+   "half_life_days": 29.377050222034626,
+   "is": 12.497087827019968,
+   "oos": 1.7276513299700085,
+   "full": 14.48734002981989,
+   "trades": 20,
+   "wins": 13,
+   "exits": {
+    "ziel": 11,
+    "stop": 5,
+    "zeit": 3,
+    "ende": 1
+   },
+   "fees": 0.9725579201999998,
+   "funding": -0.11908455001999983,
+   "dd": 9.29447013254253
+  },
+  {
+   "pair": "DOGEUSDT/PEPEUSDT",
+   "sector": "Memes",
+   "half_life_days": 42.31346712729062,
+   "is": -2.315688434253161,
+   "oos": 0.681608306518207,
+   "full": -1.6695969121940024,
+   "trades": 27,
+   "wins": 11,
+   "exits": {
+    "ziel": 10,
+    "stop": 12,
+    "zeit": 4,
+    "ende": 1
+   },
+   "fees": 1.2133390950251401,
+   "funding": -0.29389803401113,
+   "dd": 16.124998053103905
+  },
+  {
+   "pair": "NEARUSDT/APTUSDT",
+   "sector": "Alt-L1",
+   "half_life_days": 13093.330202878053,
+   "is": -11.442372661842498,
+   "oos": -7.431611390864845,
+   "full": -17.34228259478607,
+   "trades": 15,
+   "wins": 9,
+   "exits": {
+    "ziel": 9,
+    "zeit": 5,
+    "stop": 1
+   },
+   "fees": 0.6501438298036799,
+   "funding": -0.7109391574975727,
+   "dd": 41.781498961639485
+  },
+  {
+   "pair": "ADAUSDT/DOTUSDT",
+   "sector": "Alt-L1, \u00e4ltere Generation",
+   "half_life_days": 14.437529128157761,
+   "is": -2.2860377915160015,
+   "oos": 0.03977592733305357,
+   "full": -2.1756701423959726,
+   "trades": 37,
+   "wins": 14,
+   "exits": {
+    "zeit": 6,
+    "ziel": 8,
+    "stop": 23
+   },
+   "fees": 1.6077706452599996,
+   "funding": -0.1785240428640001,
+   "dd": 14.32884075307025
+  },
+  {
+   "pair": "LTCUSDT/ZECUSDT",
+   "sector": "Payment / Privacy",
+   "half_life_days": 74.44013279034748,
+   "is": 11.40086022792827,
+   "oos": -14.9902568116959,
+   "full": -6.747950374806649,
+   "trades": 21,
+   "wins": 11,
+   "exits": {
+    "ziel": 9,
+    "stop": 9,
+    "zeit": 3
+   },
+   "fees": 1.1054731639907998,
+   "funding": 0.25739635681589923,
+   "dd": 40.6904063294762
+  },
+  {
+   "pair": "SUIUSDT/APTUSDT",
+   "sector": "Move-L1",
+   "half_life_days": 50.98662791514442,
+   "is": 7.053117702188253,
+   "oos": 4.9854380152558875,
+   "full": 12.742031442203924,
+   "trades": 15,
+   "wins": 13,
+   "exits": {
+    "ziel": 13,
+    "zeit": 2
+   },
+   "fees": 0.7730766395581441,
+   "funding": -0.17345203892206634,
+   "dd": 6.575602949798559
+  },
+  {
+   "pair": "LINKUSDT/INJUSDT",
+   "sector": "Infrastruktur",
+   "half_life_days": 69.63441022239432,
+   "is": -5.511628249988995,
+   "oos": -4.7723594431889325,
+   "full": -10.126877370107927,
+   "trades": 24,
+   "wins": 13,
+   "exits": {
+    "ziel": 11,
+    "zeit": 5,
+    "stop": 7,
+    "ende": 1
+   },
+   "fees": 1.043126647488,
+   "funding": 0.673642162619999,
+   "dd": 33.448391516889515
+  }
+ ],
+ "neighborhood": [
+  {
+   "lookback_days": 15,
+   "entry_z": 1.5,
+   "is": {
+    "sum": -69.5622731105606,
+    "positive": 2,
+    "trades": 277
+   },
+   "oos": {
+    "sum": -26.57884716668292,
+    "positive": 3,
+    "trades": 125
+   },
+   "full": {
+    "sum": -94.2095920108981,
+    "positive": 1,
+    "trades": 403
+   }
+  },
+  {
+   "lookback_days": 15,
+   "entry_z": 2.0,
+   "is": {
+    "sum": -56.07714150060243,
+    "positive": 2,
+    "trades": 202
+   },
+   "oos": {
+    "sum": -16.477009270323805,
+    "positive": 4,
+    "trades": 95
+   },
+   "full": {
+    "sum": -71.37761998098566,
+    "positive": 1,
+    "trades": 299
+   }
+  },
+  {
+   "lookback_days": 15,
+   "entry_z": 2.5,
+   "is": {
+    "sum": -32.082430055233594,
+    "positive": 3,
+    "trades": 156
+   },
+   "oos": {
+    "sum": -7.730831618164977,
+    "positive": 4,
+    "trades": 65
+   },
+   "full": {
+    "sum": -39.8089132629868,
+    "positive": 2,
+    "trades": 221
+   }
+  },
+  {
+   "lookback_days": 30,
+   "entry_z": 1.5,
+   "is": {
+    "sum": -9.341421192366617,
+    "positive": 5,
+    "trades": 168
+   },
+   "oos": {
+    "sum": -28.785515101770606,
+    "positive": 3,
+    "trades": 105
+   },
+   "full": {
+    "sum": -29.903049845635792,
+    "positive": 3,
+    "trades": 272
+   }
+  },
+  {
+   "lookback_days": 30,
+   "entry_z": 2.0,
+   "is": {
+    "sum": 2.4484409511977816,
+    "positive": 5,
+    "trades": 127
+   },
+   "oos": {
+    "sum": -30.156327319832265,
+    "positive": 4,
+    "trades": 83
+   },
+   "full": {
+    "sum": -26.708444578996733,
+    "positive": 3,
+    "trades": 210
+   }
+  },
+  {
+   "lookback_days": 30,
+   "entry_z": 2.5,
+   "is": {
+    "sum": -7.141044696988288,
+    "positive": 5,
+    "trades": 97
+   },
+   "oos": {
+    "sum": -13.05459068247692,
+    "positive": 4,
+    "trades": 69
+   },
+   "full": {
+    "sum": -17.75365124306036,
+    "positive": 4,
+    "trades": 166
+   }
+  },
+  {
+   "lookback_days": 60,
+   "entry_z": 1.5,
+   "is": {
+    "sum": -13.868083391105706,
+    "positive": 2,
+    "trades": 123
+   },
+   "oos": {
+    "sum": -11.743299057884798,
+    "positive": 4,
+    "trades": 87
+   },
+   "full": {
+    "sum": -14.000316032713101,
+    "positive": 3,
+    "trades": 208
+   }
+  },
+  {
+   "lookback_days": 60,
+   "entry_z": 2.0,
+   "is": {
+    "sum": -26.208833402981142,
+    "positive": 3,
+    "trades": 92
+   },
+   "oos": {
+    "sum": -14.699037803364519,
+    "positive": 5,
+    "trades": 63
+   },
+   "full": {
+    "sum": -35.628697851463436,
+    "positive": 4,
+    "trades": 155
+   }
+  },
+  {
+   "lookback_days": 60,
+   "entry_z": 2.5,
+   "is": {
+    "sum": -22.653929855039678,
+    "positive": 3,
+    "trades": 75
+   },
+   "oos": {
+    "sum": -12.181540660329937,
+    "positive": 5,
+    "trades": 55
+   },
+   "full": {
+    "sum": -28.917734442819178,
+    "positive": 4,
+    "trades": 130
+   }
+  }
+ ],
+ "quarters": [
+  {
+   "label": "2025-10-18 \u2013 2026-01-17",
+   "net": 14.555257531808358,
+   "positive": 6
+  },
+  {
+   "label": "2026-01-17 \u2013 2026-04-19",
+   "net": 1.7146562651055604,
+   "positive": 5
+  },
+  {
+   "label": "2026-04-19 \u2013 2026-07-19",
+   "net": -10.920829693104821,
+   "positive": 2
+  },
+  {
+   "label": "2026-07-19 \u2013 2026-10-18",
+   "net": -31.220440417096427,
+   "positive": 4
+  }
+ ]
+}

@@ -103,6 +103,71 @@ Der Filter ist eng. Von den Stunden scheitern die meisten am ADX. Gestartet wurd
 
 Gegen die V2-Historie ist das ein anderes Profil: wenige Grids statt hunderter Taker-Scalps, und ein Verlust in der Größenordnung von einem USDT statt rund 63 USDT. Es ist trotzdem kein nachgewiesener Vorteil nach Fees.
 
+## Alternativen geprüft (18.10.2026)
+
+Ein Jahr 1h-Kerzen (18.10.2025 bis 18.10.2026), 28 liquide Krypto-Perps, jedes Symbol mit eigenen 50 USDT, Hebel 2, dieselben Kosten wie oben. Out-of-Sample sind die letzten 120 Tage. Alle Kandidaten und Parameter standen vor dem Lauf fest. Code in `research/`, Tabellen in [backtest/strategy_comparison.md](backtest/strategy_comparison.md) und [backtest/trend_followup.md](backtest/trend_followup.md).
+
+| Kandidat | In-Sample | Out-of-Sample | Jahr | positiv | Fees (Jahr) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Grid Default (dieser Bot) | −54,7 | −15,3 | −68,5 | 5/28 | 52,9 |
+| Grid mit Abwicklung statt Taker-Ausstieg (48h) | −60,3 | −20,3 | −77,0 | 5/28 | 42,4 |
+| Grid Abwicklung + Hysterese | −54,1 | −16,8 | −71,1 | 7/28 | 48,5 |
+| Donchian 40/20 auf 4h, Stop 3 × ATR, long+short | +2,5 | +29,1 | +25,7 | 14/28 | 8,4 |
+| Donchian 40/20 auf 4h, nur long | −8,4 | +50,8 | +36,8 | 18/28 | 4,6 |
+| Donchian 20/10 auf 4h | −11,2 | +31,9 | +18,8 | 17/28 | 13,5 |
+| Bollinger-Mean-Reversion 1h, Maker-Einstieg | −404 | −294 | −604 | 1/28 | 273 |
+
+Summen in USDT über 28 × 50 USDT. Buy & Hold im Jahr: Median −39 %, In-Sample −54 %, Out-of-Sample +34 %.
+
+Was daraus folgt:
+
+- **Das Grid ist in jedem Quartal negativ**, auch in den beiden Seitwärts-Bärenquartalen, für die es gebaut ist. Realisiert über das Jahr −12 USDT, Fees 53 USDT. Die Abwicklung statt Taker-Ausstieg spart Taker-Fees, hält das Inventar aber länger in den Ausbruch hinein und ist unterm Strich schlechter. Das Leck ist nicht der Ausstieg, sondern die Konstruktion: 48h-Range, Ausstieg bei jedem Regime-Wackler, Gewinn je Umlauf im Bereich der Fees.
+- **Mean-Reversion am Band auf 1h ist bei diesen Kosten tot.** 20.000 Trades, 271 USDT Fees.
+- **Trendfolge auf 4h ist der einzige Kandidat mit gesunder Kostenstruktur**: 798 Trades im Jahr, Fees 8 USDT bei realisierten +37 USDT. Sie ist in allen vier Quartalen besser als das Grid, in den zwei Bärenquartalen aber auch negativ (−22, −19), und ihr Jahresplus kommt aus den letzten beiden Quartalen (+29, +63). Die Parameter-Nachbarschaft (30/15 bis 50/25, Stop 2,5 bis 3,5 × ATR) ist in-sample uneinheitlich. Das ist eine Regime-Rendite, kein nachgewiesener Vorteil.
+- **Mit 50 USDT als ein Konto trägt auch die Trendfolge nicht.** Als Portfolio mit gemeinsamem Kapital und 3 bis 5 Plätzen liegt sie je nach Variante zwischen −11 und +13 USDT im Jahr, bei 9 bis 43 % Drawdown; das einzige zweistellige Plus (+13) stammt aus einer Variante, die vor dem lückenlosen Nachladen der Kerzen bei 0 lag. Die positiven Einzel-Summen entstehen durch 28 parallele Konten, also 1400 USDT Kapital und echte Streuung. Bei 50 USDT fallen viele Signale unter die Mindestorder von 5 USDT (bis zu 585 ausgelassene Signale im Jahr), und drei Plätze streuen nichts.
+- Funding ist weiter eine Pauschale von 0,01 % je 8h auf die Nettoposition. Sie trifft die Trendfolge (immer eine Nettoposition, 9,0 USDT im Jahr) stärker als das Grid (gehedgt). Historische Funding-Sätze wären für beide Seiten einer Trendfolge im Mittel eher neutral.
+
+Empfehlung: Kein Kandidat rechtfertigt Echtgeld. Wer den Bot weiterentwickelt, sollte ihn auf die 4h-Trendfolge umbauen (`research/trend.py`, `research/portfolio.py`), nicht das Grid weiter tunen, und erst mit deutlich mehr Kapital oder mit einem Demo-Konto über mehrere Monate prüfen.
+
+### Zweite Runde: strukturelle Quellen, Momentum, Pullback, Kapital
+
+Gleiche Daten, aber mit **echten Funding-Raten** (Bitget liefert nur 90 Tage, deshalb Binance als Jahres-Proxy; in den 90 gemeinsamen Tagen lag Bitget im Mittel bei 6,7 % p.a., Binance bei 4,0 %; über das ganze Jahr liegt der Binance-Mittelwert bei −0,5 % p.a., im Bärenmarkt war Funding oft negativ). Tabellen in [backtest/alternatives.md](backtest/alternatives.md), Code `research/alternatives_report.py`.
+
+| Kandidat | Ergebnis |
+| --- | --- |
+| Cash-and-Carry (Spot long, Perp short), 50 USDT | Funding-Ertrag 0,5 bis 1,1 USDT im Jahr auf 25 USDT Perp-Notional. Jede Rotation kostet mehr, als der Wechsel bringt (Jahr −0,7 bis −4,7). Ein Coin ein Jahr halten: +0,4 bis +1,0 USDT. Kein Kursrisiko, aber 1 bis 2 % p.a., und es braucht ein Spot-Konto. |
+| Querschnitts-Momentum (wöchentlich Top 3 long, Flop 3 short, 28 Coins) | Vorzeichen wechselt mit Lookback und Abschnitt (14 T: IS +11, OOS −4; 28 T: −5; 56 T: −4). Nur long: Drawdown 36 bis 75 %. Rauschen. |
+| Pullback im Trend (4h, RSI(2) unter 10 über SMA 200) | −53 USDT über 28 Coins, 2/28 positiv. Nur long −14, 6/28. Tot. |
+| Trendfolge mit echtem Funding, je Symbol 50 USDT | +31,4 statt +25,7: Shorts bekommen Funding. 16/28 positiv. |
+| Trendfolge, ein Konto, 5 Plätze, Kapital 50 bis 10.000 USDT | **−13 bis −19 % im Jahr bei jeder Kontogröße** (10 liquide: −4 bis −14 %), Drawdown 30 bis 38 %. Mit Plätzen verfallen Signale, und genau die großen Gewinner fehlen. |
+| Trendfolge, ein Konto, alle Signale, Risiko 0,25 % je Trade | 28 Coins: −2 bis +1 % im Jahr, Drawdown 25 bis 28 %. 10 liquide: +1,5 bis +3 %, Drawdown 15 bis 17 %. Profit Factor 0,98 bis 1,08. Bei 0,5 % Risiko schon negativ, weil das Margin-Budget bindet und Signale ausfallen. |
+
+Quartale mit 1000 USDT: Die Trendfolge auf 28 Coins ist in drei von vier Quartalen negativ, auf 10 liquiden in zwei. Carry ist in jedem Quartal leicht negativ, sobald rotiert wird.
+
+Fazit der zweiten Runde: Auch mit echten Funding-Raten, mehr Kapital und drei weiteren Strategiefamilien gibt es auf diesen Daten keinen Kandidaten, der In-Sample und Out-of-Sample zugleich trägt. Das Beste, was ehrlich dasteht, sind +1,5 bis +3 % im Jahr bei 15 bis 17 % Drawdown (Trendfolge auf 10 liquiden Coins, alle Signale, kleines Risiko, ab etwa 300 USDT) und ein nahezu risikofreies +1 bis 2 % aus Funding, wenn Spot dazukommt. Beides ist kein Grund für einen Bot mit 50 USDT.
+
+### Dritte Runde: Mikrostruktur mit 1-Minuten-Kerzen (18.10.2026)
+
+Drei Ineffizienzen, die nicht aus einer Kursprognose kommen, sondern aus der Mechanik des Marktes, auf 90 Tagen 1-Minuten-Kerzen (20.07. bis 18.10.2026) für sechs Krypto-Perps und die fünf Aktien-Perps TSLA, NVDA, MSTR, INTC, SNDK. Alle Schwellen standen vor dem Lauf fest. Code `research/wicks.py`, `research/weekend.py`, `research/funding_window.py`, Tabellen in [backtest/microstructure.md](backtest/microstructure.md).
+
+| Ineffizienz | Messung | Nach Kosten |
+| --- | --- | --- |
+| Liquidations-Dochte (Minutentief > 3 × ATR(14, 1h) unter dem Vorschluss) | 58 Ereignisse in 11 Symbolen, also alle zwei Wochen je Symbol. In 75 % der Fälle ist die Hälfte des Dochts nach 15 Minuten zurückgeholt. | Maker-Kauf bei −2 × ATR, Ziel −0,5 × ATR, Stop −4 × ATR, 60 Minuten: 126 Trades, netto +0,8 USDT auf 50 USDT Notional, +1 ± 15 bp je Trade (t = 0,1), Fees 3,7 USDT. Short-Spiegel −2,9 USDT. Rauschen, und die Fills am Limit sind im Sturz optimistisch. |
+| Aktien-Perps am Wochenende (Fr 20:00 → Mo 13:30 UTC gegen Mo 13:30 → 14:30 und → 20:00) | Korrelation +0,05 (erste Stunde) und 0,00 (Tag) über 55 Symbol-Wochen, gleiches Vorzeichen in 58 %. Die Wochenend-Bewegung des Perps sagt über die Kasse-Eröffnung nichts. | Taker um 13:25 gegen Wochenend-Bewegungen über 1,5 %: 24 Trades, netto −8,4 USDT (Ausstieg 14:30) bzw. −2,7 USDT (20:00). Das Spiegelbild wäre +4,6 USDT bei t = 0,45, also dieselben 24 Trades rückwärts gelesen. |
+| Funding-Fenster (30 Minuten vor und nach 00:00, 08:00, 16:00 UTC) | 2962 Funding-Zeitpunkte: vorher +0,5 ± 0,8 bp, nachher +4,6 ± 0,9 bp. Dieselben Fenster um 4 Stunden versetzt, ohne Funding: −0,5 und +4,0 bp. Die Bewegung hat mit dem Funding nichts zu tun. | Fade (Short vor positivem Satz, Funding kassieren): −22 bp je Fenster nach 16 bp Taker-Round-Trip. Bounce (Long zum Funding): −10 bp. Nur bei Sätzen über 3 bp (n = 110) bleibt der Bounce bei +1,8 bp, bei ± 4,7 bp Standardfehler. |
+
+Fazit der dritten Runde: Die Mechanik ist sichtbar (Dochte kehren zurück, der Kurs driftet nach den Fixings leicht aufwärts), aber in der Größe eines einzelnen Spreads. Keine der drei Quellen trägt mit 50 USDT einen Taker-Trade, und das Maker-Spiel in den Docht ist nach 126 Trades von Null nicht zu unterscheiden. Auf Bitget sind die Funding-Sätze im Sommer 2026 klein und die Aktien-Perps am Wochenende weitgehend still; das Umfeld, in dem solche Ineffizienzen Geld wert sind, war in diesen 90 Tagen nicht da.
+
+### Dritte Runde: Pairs-Trading
+
+Zehn Sektor-Paare, vorab festgelegt (BTC/ETH, ETH/SOL, OP/ARB, UNI/AAVE, DOGE/PEPE, NEAR/APT, ADA/DOT, LTC/ZEC, SUI/APT, LINK/INJ). Spread = log(A) − log(B) auf 4h, z über 30 Tage, Einstieg |z| ≥ 2, Ausstieg |z| ≤ 0,5, Stop |z| ≥ 4, Zeitstopp 15 Tage, je Bein 40 % von 50 USDT, Taker, echtes Funding. Tabellen in [backtest/pairs.md](backtest/pairs.md), Code `research/pairs.py`.
+
+| | IS | OOS | Jahr | positiv |
+| --- | ---: | ---: | ---: | ---: |
+| Summe über 10 Paare | +2,5 | −30,2 | −26,7 | 3/10 |
+
+Zwei Paare sind über das Jahr deutlich positiv (UNI/AAVE +14,5, SUI/APT +12,7), drei verlieren 10 bis 17 USDT, weil der Spread nicht zurückkommt (OP/ARB, NEAR/APT, LINK/INJ; Halbwertszeiten von 70 bis über 10.000 Tagen). Die Nachbarschaft aus 15/30/60 Tagen und z 1,5/2/2,5 ist in 26 von 27 Zellen negativ. Quartale: +14,6, +1,7, −10,9, −31,2. Im Bullenquartal laufen Paare auseinander und bleiben auseinander. Zwei Gewinner aus zehn im Nachhinein auszuwählen wäre genau der Fehler, vor dem der Universum-Report warnt.
+
 ## Betrieb
 
 Paper ist der Default. Live ist in [README.md](README.md) und [TRADING_RULES.md](TRADING_RULES.md) beschrieben. Wer live geht, tut das mit dem Wissen, dass dieser Backtest nach Kosten negativ ist, und mit einem Konto, das die Mindestgrößen tragen kann.

@@ -42,6 +42,7 @@ Kill-Switch: Datei `KILL_SWITCH` im Arbeitsverzeichnis anlegen oder `KILL_SWITCH
 | `bitget_client.py` | REST, Signatur wie V2, öffentliche Kerzen ohne Key |
 | `gridbot/` | Indikatoren, Regime, Order-Payloads, Risiko, Backtest |
 | `backtest.py` | Historische 1h-Kerzen, Fee- und Funding-Modell |
+| `research/` | Strategie-Vergleich: Grid-Varianten, 4h-Trendfolge, Mean-Reversion, gleiche Kosten. `python3 -m research.compare`, `python3 -m research.trend_report`, `python3 -m research.alternatives_report` (Carry, Momentum, Pullback, echtes Funding), `python3 -m research.pairs_report` (Pairs-Trading); Kerzen und Funding aus `data/research/` |
 | `config.example.py` | Vorlage, keine Secrets |
 | `telegram_notify.py` | Optional, still wenn Token leer ist |
 
@@ -49,4 +50,4 @@ Kill-Switch: Datei `KILL_SWITCH` im Arbeitsverzeichnis anlegen oder `KILL_SWITCH
 
 ## Hinweis
 
-Futures-Handel kann das Konto aufbrauchen. Der Backtest auf 120 Tagen mit 50 USDT Startkapital ist nach Fees leicht negativ. Details in [STRATEGY.md](STRATEGY.md).
+Futures-Handel kann das Konto aufbrauchen. Der Backtest auf 120 Tagen mit 50 USDT Startkapital ist nach Fees leicht negativ, über ein Jahr und 28 Coins klar negativ. Von den geprüften Alternativen hat nur die 4h-Trendfolge eine gesunde Kostenstruktur, und auch sie trägt mit 50 USDT nicht. Details in [STRATEGY.md](STRATEGY.md).

@@ -156,7 +156,7 @@ class BitgetClient:
             oldest = min(int(row[0]) for row in batch)
             if oldest <= start_ms or oldest >= end:
                 break
-            end = oldest - 1
+            end = oldest  # endTime ist die Schlusszeit der letzten Kerze (inklusiv): die Kerze vor `oldest` schließt genau dort
             self._sleep(0.12)
         rows.sort(key=lambda row: int(row[0]))
         return rows
