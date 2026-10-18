@@ -203,7 +203,7 @@ def base_settings() -> Settings:
         taker_slippage_pct=0.0002,
         funding_rate_8h=0.0001,
         loop_interval=20,
-        status_host="0.0.0.0",
+        status_host="127.0.0.1",
         status_port=8767,
         log_level="INFO",
         telegram_token="",

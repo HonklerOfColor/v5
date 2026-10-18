@@ -61,6 +61,12 @@ class ReversalStrategy:
             mark = view.last if view and view.last > 0 else 0.0
             age_h = (ctx.now_ms - pos.opened_ms) / 3_600_000
             pnl = (mark - pos.entry) * pos.qty if mark > 0 else 0.0
+            if mark > 0 and pos.stop is not None and mark <= pos.stop:
+                plan.orders.append(_market_close(pos, "sl"))
+                continue
+            if mark > 0 and pos.take_profit is not None and mark >= pos.take_profit:
+                plan.orders.append(_market_close(pos, "tp"))
+                continue
             if mark > 0 and time_stop_due(age_h, pnl, pos.qty, mark, pos.leverage or LEVERAGE):
                 plan.orders.append(_market_close(pos, "time_stop"))
                 continue

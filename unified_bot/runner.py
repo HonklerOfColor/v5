@@ -58,8 +58,7 @@ class Bot:
         )
         if book.anchor <= 0:
             book.anchor = settings.paper_equity
-        if not raw:
-            self._try_account_anchor(book, settings)
+        self._try_account_anchor(book, settings, anchor=not raw)
         for strategy in self.strategies:
             strategy.load_state(strat_state.get(strategy.id) or {})
         self.book = book
@@ -95,12 +94,15 @@ class Bot:
         self.last_cycle: dict = {}
         self.specs: dict[str, ContractSpec] = dict(FALLBACK_SPECS)
         self._prepared_live = False
+        self._specs_loaded: set[str] = set()
+        self.last_marks: dict[str, float] = {}
+        self._halt_notified = False
         for note in notes:
             logger.warning(note)
 
     @staticmethod
-    def _try_account_anchor(book: Book, settings: Settings) -> None:
-        """Paper mit echten Keys liest die Equity, schickt aber keine Order."""
+    def _try_account_anchor(book: Book, settings: Settings, anchor: bool = True) -> None:
+        """Prüft bei jedem Start die UID. Die Start-Equity wird nur ohne Zustandsdatei gelesen."""
         if not settings.keys_look_real():
             logger.info(
                 f"Konto {settings.account_name} UID {settings.account_uid}. "
@@ -127,20 +129,24 @@ class Bot:
                 raise SystemExit(
                     f"UID von {settings.account_name} nicht lesbar. Live ohne Abgleich abgelehnt."
                 )
-            equity = client.get_equity()
+            equity = client.get_equity() if anchor else 0.0
         except SystemExit:
             raise
         except Exception as exc:
+            if settings.mode == "live":
+                raise SystemExit(f"Konto nicht prüfbar ({exc}). Live ohne UID-Abgleich abgelehnt.") from exc
             logger.warning(f"Kontostand nicht lesbar ({exc}). Paper-Equity bleibt {book.anchor:.2f}.")
             return
         logger.info(f"Key geprüft gegen UID {settings.account_uid} ({settings.account_name}).")
-        if equity and equity > 0:
+        if anchor and equity and equity > 0:
             book.anchor = equity
             logger.info(f"Start-Equity vom Konto: {equity:.2f} USDT")
 
     def symbols(self) -> list[str]:
         found: list[str] = []
         for strategy in self.strategies:
+            if not self.settings.strategy(strategy.id).enabled:
+                continue
             for symbol in self.settings.strategy(strategy.id).symbols:
                 if symbol not in found:
                     found.append(symbol)
@@ -174,12 +180,13 @@ class Bot:
             if asks and not ask:
                 ask = float(asks[0][0])
             spec = self.specs.get(symbol)
-            if spec is None or symbol not in FALLBACK_SPECS:
+            if symbol not in self._specs_loaded:
                 try:
                     spec = self.public.get_spec(symbol)
-                    self.specs[symbol] = spec
-                except Exception:
-                    spec = FALLBACK_SPECS.get(symbol)
+                    self._specs_loaded.add(symbol)
+                except Exception as exc:
+                    logger.warning(f"{symbol}: Kontrakt nicht von Bitget geladen ({exc}), Fallback-Spec")
+                    spec = spec or FALLBACK_SPECS.get(symbol)
             if spec is not None:
                 self.specs[symbol] = spec
             if not candles and last <= 0:
@@ -196,6 +203,7 @@ class Bot:
             if view.spec is not None:
                 self.specs[view.symbol] = view.spec
         marks = _marks(views)
+        self.last_marks.update(marks)
         self._match_paper(views, now_ms)
         self._enforce_halt(marks, now_ms)
         self._reconcile(now_ms)
@@ -239,6 +247,7 @@ class Bot:
                 placed += 1
                 if result.fill is not None:
                     strategy.consume_fill(result.fill, self.book)
+                    self._protect_after_fill(result.fill)
                     self._notify_fill(result.fill)
         self._funding(views, now_ms)
         self._persist()
@@ -328,7 +337,11 @@ class Bot:
         self.risk.state.check_daily(equity, self.settings.daily_loss_pct)
         if self.risk.state.halted:
             self._flatten_all(marks, now_ms, self.risk.state.halt_reason)
-            self._notify(f"Halt {self.risk.state.halt_reason}. Entries zu, Lage wird geschlossen.")
+            if not self._halt_notified:
+                self._notify(f"Halt {self.risk.state.halt_reason}. Entries zu, Lage wird geschlossen.")
+                self._halt_notified = True
+        else:
+            self._halt_notified = False
 
     def _flatten_all(self, marks: dict[str, float], now_ms: int, reason: str) -> None:
         for order in list(self.book.orders.values()):
@@ -369,28 +382,47 @@ class Bot:
             self.broker.adopt(self.book)
         if hasattr(self.broker, "mirror_positions"):
             self.broker.mirror_positions(self._position_rows())
-        notes = reconcile(self.book, self.broker, self.specs, self.settings.maker_fee, now_ms)
+        fills: list[Fill] = []
+        frozen: set[str] = set()
+        notes = reconcile(
+            self.book, self.broker, self.specs, self.settings.maker_fee, now_ms, fills=fills, frozen=frozen
+        )
+        self.risk.state.frozen_symbols = frozen
+        for fill in fills:
+            self.by_id[fill.strategy_id].consume_fill(fill, self.book)
+            self._protect_after_fill(fill)
+            self._notify_fill(fill)
         for note in notes:
-            if "eingefroren" in note or "fremde Lage" in note:
-                symbol = note.split()[0]
-                if symbol.endswith("USDT") or symbol.isupper():
-                    self.risk.state.frozen_symbols.add(symbol.split()[0] if " " in symbol else symbol)
-            if "eingefroren" in note:
-                head = note.split(":", 1)[0].split()[0]
-                self.risk.state.frozen_symbols.add(head)
             logger.warning(note)
         if self.settings.mode == "live" and not self._prepared_live:
             client = self.broker.client
-            client.set_position_mode()
+            self._log_prepare("Hedge-Modus", client.set_position_mode())
             for strategy in self.strategies:
                 cfg = self.settings.strategy(strategy.id)
                 if not cfg.enabled:
                     continue
                 for symbol in cfg.symbols:
-                    client.set_margin_mode(symbol)
+                    self._log_prepare(f"{symbol} Margin", client.set_margin_mode(symbol))
                     for side in ("long", "short"):
-                        client.set_leverage(symbol, cfg.leverage, side)
+                        self._log_prepare(f"{symbol} {side} Hebel", client.set_leverage(symbol, cfg.leverage, side))
             self._prepared_live = True
+
+    @staticmethod
+    def _log_prepare(label: str, response) -> None:
+        code = str((response or {}).get("code", "")) if isinstance(response, dict) else ""
+        if code and code != "00000":
+            logger.warning(f"Live-Vorbereitung {label}: {response}")
+
+    def _protect_after_fill(self, fill: Fill) -> None:
+        """Live: Stop und Ziel einer neuen Lage liegen sofort auch auf der Börse."""
+        if self.settings.mode != "live" or fill.purpose != "open" or not hasattr(self.broker, "client"):
+            return
+        pos = self.book.find_position(fill.strategy_id, fill.symbol, fill.position_side)
+        if pos is None or pos.stop is None:
+            return
+        tp = f"{pos.take_profit}" if pos.take_profit is not None else None
+        response = self.broker.client.place_position_stop(fill.symbol, pos.side, f"{pos.stop}", tp)
+        self._log_prepare(f"{fill.symbol} Stop", response)
 
     def _apply_stop(self, stop) -> None:
         pos = self.book.find_position(stop.strategy_id, stop.symbol, stop.position_side)
@@ -454,7 +486,7 @@ class Bot:
         )
 
     def status_payload(self) -> dict:
-        marks = {}
+        marks = dict(self.last_marks)
         equity = self.book.account_equity(marks)
         sleeves = {}
         for strategy_id, ledger in self.book.ledgers.items():

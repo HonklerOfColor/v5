@@ -57,11 +57,22 @@ class GridStrategy:
                 grid.orders[order.client_oid] = order
             grid.apply_fill(order, fill.price, fill.qty, fill.fee_rate)
         else:
-            grid.close_qty(fill.position_side, fill.price, fill.qty, fill.fee_rate)
-            grid.orders.pop(fill.client_oid, None)
-        if grid.long_qty <= 1e-8 and grid.short_qty <= 1e-8 and not grid.orders and fill.purpose != "open":
-            self.cooldown_until_ms[fill.symbol] = fill.ts_ms + self.params.cooldown_bars * HOUR_MS
-            self.grids.pop(fill.symbol, None)
+            order = grid.orders.get(fill.client_oid)
+            if order is not None and fill.purpose == "close":
+                # Regulärer TP: die Engine schließt genau die Lots dieser Stufe.
+                grid.apply_fill(order, fill.price, fill.qty, fill.fee_rate)
+            else:
+                grid.close_qty(fill.position_side, fill.price, fill.qty, fill.fee_rate)
+                grid.orders.pop(fill.client_oid, None)
+        self._retire_if_flat(grid, fill.symbol, fill.ts_ms, fill.purpose)
+
+    def _retire_if_flat(self, grid: ActiveGrid, symbol: str, ts_ms: int, purpose: str) -> None:
+        if purpose == "open":
+            return
+        if grid.long_qty > 1e-8 or grid.short_qty > 1e-8 or grid.orders:
+            return
+        self.cooldown_until_ms[symbol] = ts_ms + self.params.cooldown_bars * HOUR_MS
+        self.grids.pop(symbol, None)
 
     def on_reject(self, intent: OrderIntent, reason: str) -> None:
         grid = self.grids.get(intent.symbol)
@@ -106,6 +117,8 @@ class GridStrategy:
             reason = "regime"
         if reason:
             self._queue_flatten(plan, grid, reason)
+            # Ohne Lage gibt es keinen Fill, der das Grid später abräumt.
+            self._retire_if_flat(grid, symbol, ctx.now_ms, "emergency")
             return
         cancelled = grid.sync_orders(mark, ctx.sleeve_equity, view.spec, self.params)
         known = ctx.known_order_ids()
@@ -147,6 +160,10 @@ class GridStrategy:
         )
         if built is None:
             plan.notes.append(f"{symbol}: {why}")
+            return False
+        # Die Engine lässt 2 % Toleranz zu. Der Risiko-Manager prüft strikt das Dreifache der Fee.
+        if built.spacing_pct + 1e-12 < self.params.min_spacing_pct:
+            plan.notes.append(f"{symbol}: abstand_unter_fee")
             return False
         grid = ActiveGrid.from_plan(built, created_ms=ctx.now_ms)
         self.grids[symbol] = grid

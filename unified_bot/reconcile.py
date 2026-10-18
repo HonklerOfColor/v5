@@ -7,7 +7,16 @@ from unified_bot.ids import owner_of
 from unified_bot.models import Fill
 
 
-def reconcile(book: Book, broker, specs: dict, maker_fee: float, ts_ms: int) -> list[str]:
+def reconcile(
+    book: Book,
+    broker,
+    specs: dict,
+    maker_fee: float,
+    ts_ms: int,
+    fills: list[Fill] | None = None,
+    frozen: set[str] | None = None,
+) -> list[str]:
+    """`fills` sammelt übernommene Fills für die Strategien, `frozen` die abweichenden Symbole."""
     notes: list[str] = []
     remote = broker.list_open_orders()
     remote_ids = {str(row.get("clientOid") or "") for row in remote}
@@ -33,26 +42,26 @@ def reconcile(book: Book, broker, specs: dict, maker_fee: float, ts_ms: int) -> 
         avg = float(detail.get("avg") or order.price or 0)
         delta = filled - order.filled
         if delta > 1e-12 and avg > 0 and state in ("filled", "partially_filled", "full_fill"):
-            fee = avg * delta * maker_fee
-            book.apply_fill(
-                Fill(
-                    strategy_id=order.strategy_id,
-                    client_oid=oid,
-                    symbol=order.symbol,
-                    book_side=order.book_side,
-                    position_side=order.position_side,
-                    purpose=order.purpose,
-                    price=avg,
-                    qty=delta,
-                    fee=fee,
-                    fee_rate=maker_fee,
-                    liquidity="maker",
-                    ts_ms=ts_ms,
-                    leverage=order.leverage,
-                    reason=order.reason or "reconcile_fill",
-                    market=order.market,
-                )
+            fill = Fill(
+                strategy_id=order.strategy_id,
+                client_oid=oid,
+                symbol=order.symbol,
+                book_side=order.book_side,
+                position_side=order.position_side,
+                purpose=order.purpose,
+                price=avg,
+                qty=delta,
+                fee=avg * delta * maker_fee,
+                fee_rate=maker_fee,
+                liquidity="maker",
+                ts_ms=ts_ms,
+                leverage=order.leverage,
+                reason=order.reason or "reconcile_fill",
+                market=order.market,
             )
+            book.apply_fill(fill)
+            if fills is not None:
+                fills.append(fill)
             notes.append(f"fill übernommen {oid}")
             continue
         if state in ("canceled", "cancelled", "expired") or not detail:
@@ -93,4 +102,6 @@ def reconcile(book: Book, broker, specs: dict, maker_fee: float, ts_ms: int) -> 
                     f"{symbol} {side}: Lage weicht ab, lokal {local}, Börse {remote_qty}. Symbol eingefroren."
                 )
             book.locks[symbol] = owner or "__exchange__"
+            if frozen is not None:
+                frozen.add(symbol)
     return notes
