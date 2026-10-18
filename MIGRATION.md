@@ -1,6 +1,8 @@
 # Umzug von den Subaccounts
 
-Die alten Bots hatten je einen API-Key auf einem eigenen Subaccount. Dieser Bot ersetzt sie durch **ein** Konto und **einen** Key. Nicht alle drei Keys in eine Config kleben: ein Key handelt nur das Konto, für das er ausgestellt wurde.
+Es gibt nur noch ein Konto: **UID 9711026741**, Name **at-HNK**. Der API-Key dafür liegt ausschließlich in `config.py` (gitignored). Secret und Passphrase kommen dort dazu, nicht ins Repo. Eine andere UID beendet der Prozess beim Start.
+
+Die alten Bots hatten je einen API-Key auf einem eigenen Subaccount. Die Tabelle ist die Herkunft der Strategien, nicht eine Liste von Konten, die dieser Bot noch benutzt.
 
 ## Was wohin gehörte
 

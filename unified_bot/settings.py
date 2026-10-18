@@ -59,6 +59,8 @@ class Settings:
     log_level: str
     telegram_token: str
     telegram_chat_id: str
+    account_uid: str
+    account_name: str
     strategies: dict[str, StrategySettings]
     grid: dict = field(default_factory=dict)
 
@@ -206,6 +208,8 @@ def base_settings() -> Settings:
         log_level="INFO",
         telegram_token="",
         telegram_chat_id="",
+        account_uid="9711026741",
+        account_name="at-HNK",
         strategies=default_strategies(),
         grid=_grid_defaults(),
     )
@@ -288,6 +292,8 @@ def load_settings(cfg: object | None = None, force_live: bool = False) -> Settin
     settings.log_level = str(_get(cfg, "LOG_LEVEL", settings.log_level))
     settings.telegram_token = str(_get(cfg, "TELEGRAM_BOT_TOKEN", "") or "")
     settings.telegram_chat_id = str(_get(cfg, "TELEGRAM_CHAT_ID", "") or "")
+    settings.account_uid = str(_get(cfg, "ACCOUNT_UID", settings.account_uid) or "")
+    settings.account_name = str(_get(cfg, "ACCOUNT_NAME", settings.account_name) or "")
     raw_strats = _get(cfg, "STRATEGIES", None) or {}
     merged: dict[str, StrategySettings] = {}
     for strategy_id, base in settings.strategies.items():
@@ -338,6 +344,11 @@ def validate_settings(settings: Settings) -> None:
         raise SystemExit(f"Allokationen summieren sich auf {total:.2%}, mehr als 100 %.")
     if settings.mode == "live" and not settings.keys_look_real():
         raise SystemExit("Live abgelehnt: API-Keys fehlen oder sind Platzhalter.")
+    if settings.account_uid != "9711026741":
+        raise SystemExit(
+            "Nur das Konto UID 9711026741 (at-HNK) ist zugelassen. "
+            f"config.py hat ACCOUNT_UID={settings.account_uid or 'leer'}."
+        )
 
 
 def load_user_config():

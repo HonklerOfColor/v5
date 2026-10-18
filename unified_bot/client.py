@@ -177,6 +177,16 @@ class BitgetClient:
     def get_equity(self) -> float | None:
         return self._amount(self.get_account(), ("usdtEquity", "accountEquity", "equity", "available"))
 
+    def get_user_id(self) -> str:
+        """UID des Keys. Bitget liefert sie unter spot/account/info als userId."""
+        data = self._get("/api/v2/spot/account/info", {})
+        body = data.get("data") or {}
+        if isinstance(body, list):
+            body = body[0] if body else {}
+        if not isinstance(body, dict):
+            return ""
+        return str(body.get("userId") or body.get("uid") or "")
+
     def get_spot_assets(self) -> list:
         data = self._get("/api/v2/spot/account/assets", {})
         rows = data.get("data") or []

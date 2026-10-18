@@ -102,6 +102,10 @@ class Bot:
     def _try_account_anchor(book: Book, settings: Settings) -> None:
         """Paper mit echten Keys liest die Equity, schickt aber keine Order."""
         if not settings.keys_look_real():
+            logger.info(
+                f"Konto {settings.account_name} UID {settings.account_uid}. "
+                "Secret oder Passphrase fehlen, das Konto wird nicht signiert abgefragt."
+            )
             return
         try:
             client = BitgetClient(
@@ -113,10 +117,23 @@ class Bot:
                 margin_mode=settings.margin_mode,
                 demo_mode=settings.demo_mode,
             )
+            user_id = client.get_user_id()
+            if user_id and user_id != settings.account_uid:
+                raise SystemExit(
+                    f"Key gehört zu UID {user_id}, zugelassen ist nur {settings.account_uid} "
+                    f"({settings.account_name})."
+                )
+            if not user_id and settings.mode == "live":
+                raise SystemExit(
+                    f"UID von {settings.account_name} nicht lesbar. Live ohne Abgleich abgelehnt."
+                )
             equity = client.get_equity()
+        except SystemExit:
+            raise
         except Exception as exc:
             logger.warning(f"Kontostand nicht lesbar ({exc}). Paper-Equity bleibt {book.anchor:.2f}.")
             return
+        logger.info(f"Key geprüft gegen UID {settings.account_uid} ({settings.account_name}).")
         if equity and equity > 0:
             book.anchor = equity
             logger.info(f"Start-Equity vom Konto: {equity:.2f} USDT")
@@ -454,10 +471,17 @@ class Bot:
                 "funding": round(ledger.funding, 6),
                 "unrealized": round(self.book.unrealized(strategy_id, marks), 6),
             }
+        key_set = bool(self.settings.api_key) and not self.settings.api_key.startswith("your_")
         return {
             "agent": "unified",
             "mode": self.settings.mode,
             "paper": self.settings.mode != "live",
+            "account": {
+                "uid": self.settings.account_uid,
+                "name": self.settings.account_name,
+                "key_configured": key_set,
+                "secret_configured": self.settings.keys_look_real(),
+            },
             "equity": round(equity, 6),
             "anchor": self.book.anchor,
             "halted": self.risk.state.halted,

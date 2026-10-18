@@ -108,7 +108,9 @@ def _page(status: dict, closed: dict) -> str:
 <body>
 <main>
   <h1>Ein Konto, alle Strategien</h1>
-  <p>Modus <strong>{status.get('mode')}</strong> · Equity {status.get('equity')} USDT ·
+  <p>Konto <strong>{(status.get('account') or {}).get('name', '')}</strong>
+  UID {(status.get('account') or {}).get('uid', '')} ·
+  Modus <strong>{status.get('mode')}</strong> · Equity {status.get('equity')} USDT ·
   Halt: {halt} · Konflikte: exklusive Symbol-Sperre.</p>
   <p>JSON: <a href="/api/agent/status">/api/agent/status</a> ·
   <a href="/api/agent/closed">/api/agent/closed</a></p>

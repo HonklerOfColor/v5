@@ -1,6 +1,6 @@
 # Ein Bitget-Konto, alle Strategien
 
-Ein Python-Bot für **ein** Bitget-Konto (ein API-Key). USDT-M Perpetuals laufen im Hedge-Modus, Spot ist nur als Schnittstelle für eine spätere Funding-Arbitrage vorbereitet. Die alten Bots (je Subaccount einer) werden als Strategie-Module geführt. Orders gehen durch einen Order-Manager und einen Risiko-Manager. PnL, Fees und Funding hängen am virtuellen Unterkonto der Strategie.
+Ein Python-Bot für **ein** Bitget-Konto: UID **9711026741**, Name **at-HNK**, ein API-Key. USDT-M Perpetuals laufen im Hedge-Modus, Spot ist nur als Schnittstelle für eine spätere Funding-Arbitrage vorbereitet. Die alten Bots (je Subaccount einer) werden als Strategie-Module geführt. Orders gehen durch einen Order-Manager und einen Risiko-Manager. PnL, Fees und Funding hängen am virtuellen Unterkonto der Strategie.
 
 **Paper ist der Default.** Ohne `DRY_RUN = False`, `LIVE_TRADING = True` und den Start mit `--live` verlässt keine Order die Maschine.
 

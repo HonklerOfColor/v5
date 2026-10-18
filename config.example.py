@@ -13,6 +13,11 @@ und der Prozess mit --live gestartet wird:
   python -m unified_bot --live
 """
 
+# Einziges zugelassenes Konto. Andere UIDs lehnt der Prozess ab.
+# Der API-Key steht nur in config.py, nie hier.
+ACCOUNT_UID = "9711026741"
+ACCOUNT_NAME = "at-HNK"
+
 # ── API. Platzhalter reichen für Paper. ──────────────────────────────────────
 API_KEY = "your_bitget_api_key"
 SECRET_KEY = "your_bitget_secret_key"

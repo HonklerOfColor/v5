@@ -293,7 +293,11 @@ class ConfigTests(unittest.TestCase):
                     continue
         self.assertTrue(values["DRY_RUN"])
         self.assertFalse(values["LIVE_TRADING"])
+        self.assertEqual(values["ACCOUNT_UID"], "9711026741")
+        self.assertEqual(values["ACCOUNT_NAME"], "at-HNK")
         self.assertTrue(str(values["API_KEY"]).startswith("your_"))
+        with self.assertRaises(SystemExit):
+            load_settings(namespace_from({"ACCOUNT_UID": "000"}))
         self.assertEqual(values["TELEGRAM_BOT_TOKEN"], "")
         self.assertEqual(values["TELEGRAM_CHAT_ID"], "")
         self.assertNotIn("AAEEXw", text)
