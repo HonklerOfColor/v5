@@ -1,0 +1,635 @@
+{
+  "module": "spot_trend_ensemble",
+  "title": "Trend-Ensemble (Donchian 9 Fenster, Top-10 Spot)",
+  "mode": "paper",
+  "paper": true,
+  "bot_mode": "paper",
+  "enabled": true,
+  "prereg": "docs/spot_modules/PREREG_trend_ensemble.md (Primärvariante: alle 9 Fenster, B=10, VT=25 %, Cap 1,0)",
+  "parameters": {
+    "windows": [
+      5,
+      10,
+      20,
+      30,
+      60,
+      90,
+      150,
+      250,
+      360
+    ],
+    "B": 10,
+    "VT": 0.25,
+    "cap": 1.0,
+    "sigma_days": 90,
+    "rebalance_threshold": 0.2,
+    "universe_volume_days": 30,
+    "universe_min_median_usdt": 2000000.0,
+    "min_history_days": 60,
+    "fee": 0.001,
+    "slippage": 0.0005,
+    "granularity": "1Dutc"
+  },
+  "start_capital": 500.0,
+  "equity": 499.826135,
+  "cash": 383.954856,
+  "exposure": 0.231823,
+  "positions": [
+    {
+      "symbol": "ADAUSDT",
+      "qty": 0.003,
+      "price": 2773.2177074068018,
+      "value_usdt": 8.319653,
+      "weight": 0.016645,
+      "target_weight": 0.021872
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "qty": 0.01,
+      "price": 742.9265366478851,
+      "value_usdt": 7.429265,
+      "weight": 0.014864,
+      "target_weight": 0.014963
+    },
+    {
+      "symbol": "BNBUSDT",
+      "qty": 0.0074,
+      "price": 2848.506327924692,
+      "value_usdt": 21.078947,
+      "weight": 0.042173,
+      "target_weight": 0.04233
+    },
+    {
+      "symbol": "BTCUSDT",
+      "qty": 0.014025,
+      "price": 546.8685452349981,
+      "value_usdt": 7.669831,
+      "weight": 0.015345,
+      "target_weight": 0.015348
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "qty": 0.0152,
+      "price": 1314.2831566278755,
+      "value_usdt": 19.977104,
+      "weight": 0.039968,
+      "target_weight": 0.040157
+    },
+    {
+      "symbol": "ETHUSDT",
+      "qty": 0.0188,
+      "price": 266.47444220329953,
+      "value_usdt": 5.00972,
+      "weight": 0.010023,
+      "target_weight": 0.010045
+    },
+    {
+      "symbol": "LINKUSDT",
+      "qty": 0.0097,
+      "price": 2264.3143150796236,
+      "value_usdt": 21.963849,
+      "weight": 0.043943,
+      "target_weight": 0.044088
+    },
+    {
+      "symbol": "SOLUSDT",
+      "qty": 0.037,
+      "price": 314.85748868928096,
+      "value_usdt": 11.649727,
+      "weight": 0.023308,
+      "target_weight": 0.023321
+    },
+    {
+      "symbol": "XRPUSDT",
+      "qty": 0.006,
+      "price": 2128.8638902436924,
+      "value_usdt": 12.773183,
+      "weight": 0.025555,
+      "target_weight": 0.025584
+    }
+  ],
+  "targets": {
+    "ADAUSDT": 0.021872,
+    "AVAXUSDT": 0.014963,
+    "BNBUSDT": 0.04233,
+    "BTCUSDT": 0.015348,
+    "DOGEUSDT": 0.040157,
+    "ETHUSDT": 0.010045,
+    "LINKUSDT": 0.044088,
+    "LTCUSDT": 0.0,
+    "SOLUSDT": 0.023321,
+    "XRPUSDT": 0.025584
+  },
+  "trades": {
+    "count": 9,
+    "this_month": 9,
+    "fees_total": 0.115929,
+    "last": [
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "ADAUSDT",
+        "side": "buy",
+        "qty": 0.003,
+        "price": 2774.604316260505,
+        "fee": 0.008323812948781517,
+        "value_usdt": 8.323812948781516,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "AVAXUSDT",
+        "side": "buy",
+        "qty": 0.01,
+        "price": 743.2979999162089,
+        "fee": 0.00743297999916209,
+        "value_usdt": 7.4329799991620895,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "BNBUSDT",
+        "side": "buy",
+        "qty": 0.0074,
+        "price": 2849.930581088654,
+        "fee": 0.02108948630005604,
+        "value_usdt": 21.08948630005604,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "BTCUSDT",
+        "side": "buy",
+        "qty": 0.014025,
+        "price": 547.1419795076156,
+        "fee": 0.007673666262594308,
+        "value_usdt": 7.673666262594308,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "DOGEUSDT",
+        "side": "buy",
+        "qty": 0.0152,
+        "price": 1314.9402982061895,
+        "fee": 0.01998709253273408,
+        "value_usdt": 19.98709253273408,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "ETHUSDT",
+        "side": "buy",
+        "qty": 0.0188,
+        "price": 266.60767942440117,
+        "fee": 0.005012224373178742,
+        "value_usdt": 5.012224373178742,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "LINKUSDT",
+        "side": "buy",
+        "qty": 0.0097,
+        "price": 2265.446472237163,
+        "fee": 0.021974830780700484,
+        "value_usdt": 21.974830780700483,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "SOLUSDT",
+        "side": "buy",
+        "qty": 0.037,
+        "price": 315.01491743362556,
+        "fee": 0.011655551945044145,
+        "value_usdt": 11.655551945044145,
+        "reason": "flag"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "XRPUSDT",
+        "side": "buy",
+        "qty": 0.006,
+        "price": 2129.928322188814,
+        "fee": 0.012779569933132886,
+        "value_usdt": 12.779569933132885,
+        "reason": "flag"
+      }
+    ]
+  },
+  "drawdown": 0.000348,
+  "shadow": {
+    "equity": 499.821719,
+    "exposure": 0.237793,
+    "positions": {
+      "ADAUSDT": 10.935931,
+      "AVAXUSDT": 7.481399,
+      "BNBUSDT": 21.165097,
+      "BTCUSDT": 7.674076,
+      "DOGEUSDT": 20.078282,
+      "ETHUSDT": 5.02241,
+      "LINKUSDT": 22.044103,
+      "SOLUSDT": 11.660515,
+      "XRPUSDT": 12.792068
+    },
+    "costs_total": 0.178281
+  },
+  "deviation_pp": 0.0009,
+  "deviation_window_days": 1,
+  "alarm": false,
+  "alarm_reasons": [],
+  "alarm_since": "",
+  "alarm_rules": {
+    "drawdown": 0.15,
+    "deviation_pp": 3.0,
+    "deviation_window_days": 90,
+    "trades_per_month": null
+  },
+  "last_run": {
+    "run_day": "2026-10-18",
+    "signal_day": "2026-10-17",
+    "ts_ms": 1792281960000
+  },
+  "next_attempt_ms": 0,
+  "last_error": "",
+  "notes": [],
+  "signals": {
+    "universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "DOGEUSDT",
+      "ADAUSDT",
+      "BNBUSDT",
+      "LTCUSDT",
+      "LINKUSDT",
+      "AVAXUSDT"
+    ],
+    "effective_universe": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "XRPUSDT",
+      "DOGEUSDT",
+      "ADAUSDT",
+      "BNBUSDT",
+      "LTCUSDT",
+      "LINKUSDT",
+      "AVAXUSDT"
+    ],
+    "coins": {
+      "ADAUSDT": {
+        "weight": 0.21871862,
+        "target": 0.02187186,
+        "sigma90": 0.63501173,
+        "windows_long": [
+          5,
+          10,
+          20,
+          30,
+          60
+        ],
+        "stops": {
+          "5": 2675.056567635938,
+          "10": 2556.836620454946,
+          "20": 2322.639223856706,
+          "30": 2322.639223856706,
+          "60": 2322.639223856706
+        },
+        "close": 2770.4472601466555,
+        "in_universe": true,
+        "flag": true
+      },
+      "AVAXUSDT": {
+        "weight": 0.14962797,
+        "target": 0.0149628,
+        "sigma90": 0.55693686,
+        "windows_long": [
+          10,
+          20,
+          30
+        ],
+        "stops": {
+          "10": 732.1023110676613,
+          "20": 701.7735015816099,
+          "30": 701.7735015816099
+        },
+        "close": 742.1843522955896,
+        "in_universe": true,
+        "flag": true
+      },
+      "BNBUSDT": {
+        "weight": 0.42330194,
+        "target": 0.04233019,
+        "sigma90": 0.59059498,
+        "windows_long": [
+          5,
+          10,
+          20,
+          30,
+          60,
+          90,
+          150,
+          250,
+          360
+        ],
+        "stops": {
+          "5": 2687.487933141073,
+          "10": 2591.620047126901,
+          "20": 2388.854705350296,
+          "30": 2349.27499386478,
+          "60": 2349.27499386478,
+          "90": 2292.447378597484,
+          "150": 2018.9154615023479,
+          "250": 1915.1843701356445,
+          "360": 1714.8384001820614
+        },
+        "close": 2845.660667257435,
+        "in_universe": true,
+        "flag": true
+      },
+      "BTCUSDT": {
+        "weight": 0.15348152,
+        "target": 0.01534815,
+        "sigma90": 0.54295355,
+        "windows_long": [
+          5,
+          150,
+          250
+        ],
+        "stops": {
+          "5": 535.198353174938,
+          "150": 523.0569372091813,
+          "250": 427.22165469850677
+        },
+        "close": 546.3222230119862,
+        "in_universe": true,
+        "flag": true
+      },
+      "DOGEUSDT": {
+        "weight": 0.40156563,
+        "target": 0.04015656,
+        "sigma90": 0.55338954,
+        "windows_long": [
+          10,
+          20,
+          30,
+          60,
+          90,
+          150,
+          250,
+          360
+        ],
+        "stops": {
+          "10": 1286.9240233856603,
+          "20": 1209.3268217776586,
+          "30": 1185.1262040816994,
+          "60": 1145.526773084039,
+          "90": 1067.7008312732323,
+          "150": 1028.8130334029047,
+          "250": 996.4525659114031,
+          "360": 961.3280931558559
+        },
+        "close": 1312.9701864414342,
+        "in_universe": true,
+        "flag": true
+      },
+      "ETHUSDT": {
+        "weight": 0.1004482,
+        "target": 0.01004482,
+        "sigma90": 0.55307667,
+        "windows_long": [
+          20,
+          360
+        ],
+        "stops": {
+          "20": 249.67295749144049,
+          "360": 199.1799616512971
+        },
+        "close": 266.20823396933025,
+        "in_universe": true,
+        "flag": true
+      },
+      "LINKUSDT": {
+        "weight": 0.44088206,
+        "target": 0.04408821,
+        "sigma90": 0.56704508,
+        "windows_long": [
+          5,
+          10,
+          20,
+          30,
+          60,
+          90,
+          150,
+          250,
+          360
+        ],
+        "stops": {
+          "5": 2231.7334501577707,
+          "10": 2125.501467851973,
+          "20": 2063.2570267354376,
+          "30": 2063.2570267354376,
+          "60": 2063.2570267354376,
+          "90": 2063.2570267354376,
+          "150": 1865.1756994111702,
+          "250": 1620.088884057965,
+          "360": 1541.2280768322846
+        },
+        "close": 2262.052262816807,
+        "in_universe": true,
+        "flag": true
+      },
+      "LTCUSDT": {
+        "weight": 0.0,
+        "target": 0.0,
+        "sigma90": 0.58223441,
+        "windows_long": [],
+        "stops": {},
+        "close": 2593.8772932763254,
+        "in_universe": true,
+        "flag": true
+      },
+      "SOLUSDT": {
+        "weight": 0.2332103,
+        "target": 0.02332103,
+        "sigma90": 0.59555212,
+        "windows_long": [
+          5,
+          10,
+          20,
+          30,
+          360
+        ],
+        "stops": {
+          "5": 303.6622934842844,
+          "10": 293.4634132913313,
+          "20": 281.31175306696906,
+          "30": 281.31175306696906,
+          "360": 245.5612727005211
+        },
+        "close": 314.5429457435375,
+        "in_universe": true,
+        "flag": true
+      },
+      "XRPUSDT": {
+        "weight": 0.25584136,
+        "target": 0.02558414,
+        "sigma90": 0.65144536,
+        "windows_long": [
+          30,
+          60,
+          90,
+          150,
+          250,
+          360
+        ],
+        "stops": {
+          "30": 2082.3427193975785,
+          "60": 1921.5910036885057,
+          "90": 1710.433159377462,
+          "150": 1630.312330639607,
+          "250": 1630.312330639607,
+          "360": 1390.664185096575
+        },
+        "close": 2126.737153090602,
+        "in_universe": true,
+        "flag": true
+      }
+    }
+  },
+  "equity_history": [
+    {
+      "day": 20743,
+      "date": "2026-10-17",
+      "paper": 499.82613515,
+      "shadow": 499.82171918,
+      "exposure": 0.231823,
+      "shadow_exposure": 0.237793,
+      "cash": 383.95485571,
+      "trades": 9
+    }
+  ],
+  "universe": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "XRPUSDT",
+    "DOGEUSDT",
+    "ADAUSDT",
+    "BNBUSDT",
+    "LTCUSDT",
+    "LINKUSDT",
+    "AVAXUSDT"
+  ],
+  "universe_month": "2026-10",
+  "universe_selected_at": "2026-09-30",
+  "universe_report": [
+    {
+      "symbol": "BTCUSDT",
+      "median_volume": 39000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "median_volume": 36000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "median_volume": 33000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "median_volume": 30000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "median_volume": 27000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "median_volume": 24000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "BNBUSDT",
+      "median_volume": 21000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "LTCUSDT",
+      "median_volume": 18000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "median_volume": 15000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "median_volume": 12000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": true
+    },
+    {
+      "symbol": "DOTUSDT",
+      "median_volume": 9000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": false
+    },
+    {
+      "symbol": "TRXUSDT",
+      "median_volume": 6000000.0,
+      "history_days": 83,
+      "eligible": true,
+      "reason": "ok",
+      "selected": false
+    }
+  ]
+}

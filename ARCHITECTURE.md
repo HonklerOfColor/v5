@@ -159,6 +159,38 @@ Telegram (`unified_bot/telegram.py`) tut nichts, solange Token und Chat leer sin
 
 `run_reversal_replay` prüft das portierte V1-Muster (Long-Reversal, Wien-Stunden, 24h-Time-Stop, Fee-Abschlag). Die großen Jahres-Skripte aus `bitget_bot_v1` bleiben in dem Repo; sie hängen an lokalen Datenfiles und sind kein sauberer Import.
 
+## Spot-Module (Paper)
+
+Getrennt vom Perp-Pfad. Keine Intents, kein OrderManager, kein RiskManager: Die Module handeln nur in ihrem eigenen virtuellen Ledger.
+
+```text
+BitgetSpotClient (öffentlich, nur lesend)      unified_bot/spot/client.py
+   Specs /spot/public/symbols, Kerzen 1Dutc, Ticker
+        │
+        ▼
+   closed_only()         laufende Kerze raus            unified_bot/spot/candles.py
+        │
+        ▼
+   Signale               Donchian 9 Fenster / SMA-Ensemble, Port von lib.py / tf.py   signals.py, universe.py
+        │
+        ▼
+   decide_trades()       Tagesschritt aus run_engine: Flag, 20 %-Schwelle, Mindestorder   engine.py
+        │
+        ├── PaperSpotBroker   Ticker-Kurs, 0,10 % + 0,05 %, Rundung, Mindestorder     broker.py
+        │        └── SpotLedger  USDT + Coins, Trades                                  ledger.py
+        └── ShadowState        idealisiert zum Schluss, gleiche Regeln, ohne Mindestorder  engine.py
+        │
+        ▼
+   state/spot_<modul>.json, GET /api/v5/spot/<modul>, /trades.csv
+```
+
+- `SpotRunner` (`spot/runner.py`) hält beide Module und wird am Ende jedes Bot-Zyklus mit `tick(now_ms)` gerufen (`Bot.attach_spot`, angehängt in `__main__`). Ein Modul läuft, wenn es nach 00:05 UTC ist und für den UTC-Tag noch kein Lauf gespeichert ist. Bei API-Fehler oder fehlender Vortageskerze bleibt der Tag offen und wird nach 10 Minuten erneut versucht. Der Tageslauf dauert etwa eine Minute (am Monatsanfang mit Universumswahl etwas länger) und blockiert so lange den Perp-Zyklus.
+- Die Signalkerze ist immer der Vortag t. Flags (Signaländerung, Universumswechsel) werden über ausgelassene Tage zusammengefasst, die Vortagespositionen werden aus den Kerzen neu hergeleitet, nicht fortgeschrieben.
+- Es gibt keinen Live-Spot-Broker. Der Spot-Client hat keine Order-Methode; ein Test stellt das sicher. Im Live-Modus des Bots laufen die Module als Paper weiter und loggen das.
+- Kapital: Startkapital je Modul aus `config.py` (`SPOT_TREND_CAPITAL_USDT`, `SPOT_TF_CAPITAL_USDT`), unabhängig vom Perp-Anker. Das Perp-Risiko bleibt unverändert; `/api/agent/status` zeigt die Spot-Module nur als Zusammenfassung.
+- Alarme setzen `alarm` und `alarm_reasons` im Modulzustand und gehen einmal je neuem Grund über den Telegram-Notifier und das Log. Kein automatischer Abbruch.
+- Parameter nur in `spot/params.py`, mit Verweis auf die PREREG-Dateien.
+
 ## Slots
 
 `funding_arb` und `daily_trend` sind in der Registry, haben eine Vorsilbe und eine Allokation von 0. `plan` liefert eine TODO-Notiz und keine Intents. TrendJoin hat die Risikoregeln (siehe TRADING_RULES), `detect_breakout` gibt `None` zurück, bis `bitget_bot_v4` Code enthält.

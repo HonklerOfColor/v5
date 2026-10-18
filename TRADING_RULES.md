@@ -92,6 +92,14 @@ Solange das Signal fehlt, entstehen keine Entries, auch wenn jemand `enabled` se
 47. `funding_arb`: vorgesehen ist Spot gegen Perp, wenn die Funding-Rate die Round-Trip-Kosten trägt. Kein Signal, keine Orders, Spot wird vom Manager noch nicht live geschickt.
 48. `daily_trend`: Tages-Trendfolge. Kein Signal, bis eine vorher festgelegte Regel out-of-sample nach Fees positiv ist.
 
+## Spot-Module (Paper)
+
+50. `spot_trend_ensemble` und `spot_trendfilter_btceth` handeln nur im eigenen Paper-Ledger. Kein Pfad sendet Spot-Orders, auch nicht mit `--live`.
+51. Signal nur aus abgeschlossenen Tageskerzen (00:00 UTC, `1Dutc`). Die laufende Kerze wird verworfen. Ein Lauf je UTC-Tag, nach 00:05 UTC, idempotent über Neustarts.
+52. Parameter exakt wie `docs/spot_modules/PREREG_*.md` (siehe `unified_bot/spot/params.py`). Kein Nachoptimieren.
+53. Kosten 0,10 % + 0,05 % je Seite. Mindestorder und Rundung aus den Spot-Specs; darunter wird übersprungen und geloggt. Glattstellungen (Ziel 0, Delisting) werden immer ausgeführt.
+54. Alarm (kein Abbruch): Trend-Ensemble Drawdown > 15 % oder Abweichung zur Schattenrechnung > 3 pp über 3 Monate; Trendfilter Drawdown > 50 %, Abweichung > 5 pp über 3 Monate, oder > 25 Trades im Monat.
+
 ## Fremde Orders
 
 49. Ohne die Vorsilbe `rv1` / `sn3` / `grd` / `tj4` / `fra` / `dtr` wird eine Order nicht storniert und eine Lage nicht geschlossen.

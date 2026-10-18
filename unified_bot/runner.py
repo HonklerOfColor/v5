@@ -97,8 +97,22 @@ class Bot:
         self._specs_loaded: set[str] = set()
         self.last_marks: dict[str, float] = {}
         self._halt_notified = False
+        # Spot-Module (Paper) hängen sich mit attach_spot an; ohne Anhang läuft nur Perp.
+        self.spot = None
         for note in notes:
             logger.warning(note)
+
+    def attach_spot(self, runner) -> None:
+        """Spot-Module laufen getrennt vom Perp-Buch, einmal täglich, immer Paper."""
+        self.spot = runner
+
+    def _spot_tick(self, now_ms: int) -> None:
+        if self.spot is None:
+            return
+        try:
+            self.spot.tick(now_ms)
+        except Exception as exc:  # noqa: BLE001 - Spot darf den Perp-Loop nicht anhalten
+            logger.error(f"Spot-Module: {type(exc).__name__}: {exc}")
 
     @staticmethod
     def _try_account_anchor(book: Book, settings: Settings, anchor: bool = True) -> None:
@@ -251,6 +265,7 @@ class Bot:
                     self._notify_fill(result.fill)
         self._funding(views, now_ms)
         self._persist()
+        self._spot_tick(now_ms)
         report = {
             "mode": self.settings.mode,
             "equity": round(self.book.account_equity(marks), 4),
@@ -526,7 +541,29 @@ class Bot:
             "orders": [order.to_dict() for order in self.book.orders.values()],
             "notes": self.notes,
             "last_cycle": self.last_cycle,
+            "spot": self.spot.index_payload()["modules"] if self.spot is not None else {},
         }
+
+    def spot_index_payload(self) -> dict | None:
+        if self.spot is None:
+            return None
+        return self.spot.index_payload()
+
+    def spot_payload(self, module_id: str) -> dict | None:
+        if self.spot is None:
+            return None
+        module = self.spot.module(module_id)
+        return module.status() if module is not None else None
+
+    def spot_trades_csv(self, module_id: str) -> str | None:
+        if self.spot is None:
+            return None
+        module = self.spot.module(module_id)
+        if module is None:
+            return None
+        from unified_bot.spot.export import trades_to_csv
+
+        return trades_to_csv(module.ledger.trades, module.id)
 
     def closed_payload(self) -> dict:
         trades = [trade.to_dict() for trade in self.book.closed]

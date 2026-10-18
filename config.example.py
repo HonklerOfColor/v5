@@ -67,6 +67,15 @@ GRID_LEVELS = 6
 MIN_GRID_LEVELS = 3
 LEVEL_NOTIONAL_FRACTION = 0.20
 
+# ── Spot-Module (Paper only, docs/spot_modules/SPEC.md) ──────────────────────
+# Laufen einmal täglich nach 00:05 UTC auf der abgeschlossenen Tageskerze, mit
+# eigenem virtuellen Ledger je Modul. Sie senden nie Spot-Orders, auch nicht mit --live.
+SPOT_MODULES_ENABLED = True
+SPOT_TREND_ENABLED = True            # spot_trend_ensemble
+SPOT_TF_ENABLED = True               # spot_trendfilter_btceth
+SPOT_TREND_CAPITAL_USDT = 500.0      # Paper-Startkapital Trend-Ensemble
+SPOT_TF_CAPITAL_USDT = 500.0         # Paper-Startkapital Trendfilter BTC+ETH
+
 # Allokationen zusammen höchstens 1.0. 0 heißt: Sleeve leer, keine Entries.
 # enabled=False und entries_paused=True ist die ENTRIES_PAUSED-Semantik.
 STRATEGIES = {
