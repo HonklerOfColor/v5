@@ -1,0 +1,18 @@
+# Secrets — niemals committen
+config.py
+scalper_config.py
+.env
+.env.*
+
+# Laufzeit
+*.log
+logs/
+state/
+data/
+KILL_SWITCH
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.DS_Store
