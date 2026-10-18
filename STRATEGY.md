@@ -31,6 +31,8 @@ Kein Grid, solange eine Bedingung fehlt. Geschlossene Kerzen, kein Blick in die 
 
 Eine glatte Sinuswelle kann den ADX hochziehen, obwohl sie optisch „seitwärts“ aussieht. Der Filter will Gehacker, nicht die erste Hälfte eines Schwungs. Im Backtest blockiert vor allem der ADX.
 
+Ein laufendes Grid wird geschlossen, sobald ein Filter fehlt. Die meisten Ausstiege sind deshalb Regime-Ausstiege, und jeder zahlt Taker auf das Inventar. Eine Hysterese ist als Option eingebaut, Default aus: `ADX_EXIT_MARGIN`, `ER_EXIT_MARGIN`, `EXIT_TREND_ONLY`. Getestet mit +6 ADX, +0,15 ER und nur ADX/ER beim Halten. Sie tauschte Regime-Ausstiege gegen Breakouts und war nicht robust besser. Zahlen in [backtest/exit_variants.md](backtest/exit_variants.md).
+
 ## Grid
 
 Die Grenzen sind das Tief und das Hoch der letzten 48 Stundenkerzen. Der letzte Schluss muss im mittleren 70 % dieser Spanne liegen (`EDGE_INSET` 0,15). Die Spanne selbst muss zwischen 0,8 % und 8 % des Mittelpreises liegen.
@@ -46,6 +48,7 @@ Unter dem Preis liegen Post-only-Buys (Long öffnen), darüber Post-only-Sells (
 | Ereignis | Reaktion |
 | --- | --- |
 | Stunden-Schluss jenseits der Range plus 0,25 % | Alles stornieren, Lage schließen |
+| Preis jenseits der Range plus 1 %, auch innerhalb der Stunde | dasselbe, sofort (Notstopp) |
 | Regime nicht mehr seitwärts | dasselbe |
 | Grid-Netto ≤ −6 % des Kapitals beim Start | dasselbe |
 | UTC-Tagesverlust ≥ 5 % vom Tagesstart | schließen, an diesem Tag nichts Neues |
@@ -53,7 +56,9 @@ Unter dem Preis liegen Post-only-Buys (Long öffnen), darüber Post-only-Sells (
 
 Nach einem Ausstieg 6 Stunden Pause auf dem Symbol. Im Live-Betrieb wird der Close zuerst als Post-only versucht (20 Sekunden), der Rest geht als Market-IOC. Der Backtest bucht den Notausstieg sofort als Taker (0,06 %) plus 2 bp Slippage. Zusätzlich ein pauschales Funding von 0,01 % je 8 Stunden auf den Betrag der Nettoposition — das sind nicht die historischen Funding-Raten, sondern ein Abschlag.
 
-Live versucht außerdem einen Börsen-Stop auf der ganzen Long- bzw. Short-Lage an der Range-Grenze. Das ist ein Zusatz, kein Ersatz für einen laufenden Prozess.
+Live und Backtest entscheiden den Breakout gleich: am Schluss der letzten geschlossenen Stundenkerze. Ein Docht durch den 0,25-%-Puffer stoppt nicht aus. Für den Fall, dass der Preis innerhalb der Stunde wegläuft, gibt es den Notstopp bei 1 % jenseits der Range (`BREAKOUT_HARD_PCT`). Live prüft ihn am Ticker alle 20 Sekunden. Der Backtest bucht ihn, sobald Hoch oder Tief der Kerze ihn erreicht, zum Stopp-Preis oder bei einer Lücke zum Open, plus Taker und Slippage.
+
+Live versucht außerdem einen Börsen-Stop auf der ganzen Long- bzw. Short-Lage am Notstopp. Das ist ein Zusatz, kein Ersatz für einen laufenden Prozess.
 
 ## Parameter (Defaults)
 
@@ -63,31 +68,35 @@ Die vollständige Liste steht in `config.example.py`. Fehlende Felder in einem e
 
 ## Backtest
 
-`python3 backtest.py --days 120 --equity 50` auf öffentlichen Bitget-1h-Kerzen, 18.06.2026 bis 16.10.2026, 2865 Stunden, jedes Symbol mit eigenen 50 USDT und dasselbe noch einmal als Portfolio mit einem Grid zur Zeit. Report: `backtest/latest_report.json`.
+`python3 backtest.py --days 120 --equity 50` auf öffentlichen Bitget-1h-Kerzen, 20.06.2026 bis 18.10.2026, 2865 Stunden, jedes Symbol mit eigenen 50 USDT und dasselbe noch einmal als Portfolio mit einem Grid zur Zeit. Report: `backtest/latest_report.json`.
 
 Gebühren: Maker 0,02 %, Taker 0,06 % nur auf Notausstiegen, Funding-Abschlag 0,01 % / 8h. Dieselbe Engine wie Paper und Live.
 
 | | Ende | Netto | Realisiert | Fees (Maker/Taker) | Funding | Max. DD | Grids | Round-Trips | Ausstiege |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| BTCUSDT | 49,36 | −0,64 | +0,02 | 0,62 (0,32/0,30) | 0,03 | 1,68 % | 35 | 72 | 24 Regime, 11 Breakouts |
-| ETHUSDT | 49,79 | −0,21 | +0,30 | 0,42 (0,22/0,20) | 0,09 | 3,56 % | 22 | 19 | 18 Regime, 4 Breakouts |
-| BNBUSDT | 50,60 | +0,60 | +1,33 | 0,70 (0,37/0,33) | 0,04 | 1,38 % | 39 | 101 | 30 Regime, 9 Breakouts |
-| Portfolio | 49,45 | −0,55 | +0,81 | 1,28 (0,66/0,61) | 0,08 | 2,22 % | 72 | 136 | 52 Regime, 20 Breakouts |
+| BTCUSDT | 49,88 | −0,12 | +0,56 | 0,64 (0,34/0,30) | 0,04 | 1,53 % | 34 | 81 | 24 Regime, 9 Breakouts, 1 Notstopp |
+| ETHUSDT | 49,70 | −0,30 | +0,22 | 0,44 (0,22/0,22) | 0,08 | 3,05 % | 24 | 18 | 20 Regime, 2 Breakouts, 2 Notstopps |
+| BNBUSDT | 50,41 | +0,41 | +1,10 | 0,65 (0,35/0,31) | 0,04 | 1,40 % | 37 | 94 | 28 Regime, 8 Breakouts, 1 Notstopp |
+| Portfolio | 49,64 | −0,36 | +1,04 | 1,32 (0,67/0,65) | 0,07 | 2,26 % | 75 | 143 | 55 Regime, 17 Breakouts, 3 Notstopps |
 
-Alle 136 Portfolio-Round-Trips sind positiv. Das ist keine Trefferquote, sondern die Konstruktion: ein abgeschlossener Umlauf verkauft eine Stufe über dem Kauf (oder kauft eine Stufe unter dem Short). Der Verlust sitzt in den Notausstiegen. Im Portfolio ist das realisierte Handelsergebnis +0,81 USDT, die Fees sind 1,28 USDT. Die Kosten sind größer als der Roh-Edge. Ohne den Funding-Abschlag bleibt das Portfolio bei etwa −0,46 USDT.
+Der Lauf enthält den Notstopp innerhalb der Stunde (1 %), den Live schon immer hatte. Vor dem 18.10. war das Fenster 18.06.–16.10. ohne Notstopp im Backtest, Portfolio −0,55 USDT.
 
-BNB ist im Fenster das einzige positive Symbol (+0,60 USDT, rund +1,2 % in vier Monaten). Das ist eine Stichprobe, kein Grund, die anderen Symbole aus der Liste zu streichen. BTC ist nach Fees negativ, obwohl fast jeder Umlauf gewonnen hat: 0,62 USDT Fees bei 0,02 USDT realisiertem Preis-PnL.
+Alle 143 Portfolio-Round-Trips sind positiv. Das ist keine Trefferquote, sondern die Konstruktion: ein abgeschlossener Umlauf verkauft eine Stufe über dem Kauf (oder kauft eine Stufe unter dem Short). Der Verlust sitzt in den Notausstiegen. Im Portfolio ist das realisierte Handelsergebnis +1,04 USDT, die Fees sind 1,32 USDT. Die Kosten sind größer als der Roh-Edge. Ohne den Funding-Abschlag bleibt das Portfolio bei etwa −0,29 USDT.
 
-ETH wird oft gar nicht erst aufgemacht. Mindestgröße 0,01 ETH. Am Ende des Fensters lag ETH bei etwa 2454 USDT, also rund 24,5 USDT Notional und 12,3 USDT Margin bei 2×. Zwei solche Orders brauchen ~24,5 USDT Margin, das Budget bei 50 USDT Kapital und 50 % Einsatz sind 25 USDT. Knapp, und in teureren Stunden abgelehnt (188 Stunden `unter_mindestgroesse`). Der Bot geht dann nicht auf eine kleinere Stückzahl herunter.
+BNB ist im Fenster das einzige positive Symbol (+0,41 USDT, rund +0,8 % in vier Monaten). Das ist eine Stichprobe, kein Grund, die anderen Symbole aus der Liste zu streichen. BTC ist nach Fees negativ, obwohl jeder Umlauf gewonnen hat: 0,64 USDT Fees bei 0,56 USDT realisiertem Preis-PnL.
 
-Der Filter ist eng. Von den Stunden scheitern die meisten am ADX. Gestartet wurde im Portfolio 72-mal.
+ETH wird oft gar nicht erst aufgemacht. Mindestgröße 0,01 ETH. Am Ende des Fensters lag ETH bei etwa 2410 USDT, also rund 24,1 USDT Notional und 12,0 USDT Margin bei 2×. Zwei solche Orders brauchen ~24,1 USDT Margin, das Budget bei 50 USDT Kapital und 50 % Einsatz sind 25 USDT. Knapp, und in teureren Stunden abgelehnt (172 Stunden `unter_mindestgroesse`). Der Bot geht dann nicht auf eine kleinere Stückzahl herunter.
+
+Der Filter ist eng. Von den Stunden scheitern die meisten am ADX. Gestartet wurde im Portfolio 75-mal.
+
+Über alle 58 Alts des Universums, ohne Auswahl und mit Default-Parametern, ist die Summe in diesem Fenster −13,6 USDT bei 58 × 50 USDT. Nur 24 Coins sind positiv. Die Default-Symbole aus dem Universum-Report vom 16.10. halten zwei Tage später nicht mehr: DOGE ist in beiden Abschnitten negativ, INTC und ANTHROPIC fallen aus dem Screening. Details in [backtest/exit_variants.md](backtest/exit_variants.md).
 
 ### Was der Backtest nicht ist
 
 - Fill, sobald der Docht das Limit berührt. Das ist für Post-only leicht optimistisch.
 - Innerhalb einer Breakout-Kerze werden keine Take-Profits gutgeschrieben, wohl aber berührte Einstiege. Das ist absichtlich streng.
 - Kein Orderbuch, keine Teilausführung, keine API-Fehler, keine Warteschlange.
-- Notausstieg zum Schlusskurs plus 2 bp, nicht zum echten Slippage-Pfad.
+- Notausstieg zum Schlusskurs (Breakout, Regime) bzw. zum Stopp-Preis oder Open (Notstopp) plus 2 bp, nicht zum echten Slippage-Pfad.
 - Funding ist eine Pauschale, kein historischer Satz.
 - Ein Fenster, drei große Symbole, 50 USDT. Kein Beweis für die nächsten vier Monate.
 - Der Drawdown bleibt klein, weil die Stückzahl klein ist und der Stop greift. Klein heißt hier nicht „ohne Verlust“.

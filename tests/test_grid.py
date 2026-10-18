@@ -306,6 +306,8 @@ class LiveClient:
         self.details: dict[str, dict] = {}
         self.cancelled: list[str] = []
         self.candles: list[list] = []
+        self.mark = 0.0
+        self.stops: list[tuple] = []
 
     def get_equity(self):
         return self.equity
@@ -325,6 +327,16 @@ class LiveClient:
 
     def get_candles(self, symbol, granularity, limit=200):
         return list(self.candles)
+
+    def get_ticker(self, symbol):
+        return {"lastPr": str(self.mark), "bidPr": str(self.mark - 0.01), "askPr": str(self.mark + 0.01)}
+
+    def place_order(self, payload):
+        return {"code": "00000", "data": {"orderId": "x" + payload["clientOid"]}}
+
+    def place_position_stop(self, symbol, hold_side, stop_price):
+        self.stops.append((hold_side, stop_price))
+        return {"code": "00000"}
 
 
 def live_runner(tmp: str):
@@ -420,6 +432,82 @@ class LiveLoopTests(unittest.TestCase):
             self.assertTrue(oid.startswith("grd"))
             self.assertTrue(oid.isalnum())
             self.assertLessEqual(len(oid), 32)
+
+
+def candle_rows(candles: list[Candle]) -> list[list]:
+    return [[str(c.ts), str(c.open), str(c.high), str(c.low), str(c.close), "1"] for c in candles]
+
+
+class HysteresisAndBreakoutTests(unittest.TestCase):
+    def test_holding_default_equals_entry(self):
+        for seed in (1, 3, 10, 11):
+            candles = chop_candles(300, seed=seed)
+            entry = assess(candles, None, params())
+            hold = assess(candles, None, params(), holding=True)
+            self.assertEqual(entry.reasons, hold.reasons)
+
+    def test_holding_uses_looser_thresholds_when_enabled(self):
+        cfg = params(adx_exit_margin=6.0, er_exit_margin=0.15, exit_trend_only=True)
+        adx_band = chop_candles(300, seed=3)  # ADX 1h knapp über 22
+        self.assertEqual(assess(adx_band, None, cfg).reasons, ["adx_1h"])
+        self.assertTrue(assess(adx_band, None, cfg, holding=True).ranging)
+        self.assertFalse(assess(adx_band, None, params(exit_trend_only=True), holding=True).ranging)
+        few_crosses = chop_candles(300, seed=10)
+        self.assertEqual(assess(few_crosses, None, cfg).reasons, ["zu_wenig_kreuzungen"])
+        self.assertTrue(assess(few_crosses, None, cfg, holding=True).ranging)
+        self.assertFalse(assess(few_crosses, None, params(adx_exit_margin=6.0), holding=True).ranging)
+        self.assertFalse(assess(trend_candles(220), None, cfg, holding=True).ranging)
+
+    def test_backtest_hard_breakout_inside_the_hour(self):
+        from gridbot.backtest_engine import _hard_breakout_price
+
+        grid = alt_grid()
+        stop = grid.lower * 0.99
+        inside = Candle(0, 101.0, 101.5, grid.lower * 0.995, 101.0)
+        self.assertIsNone(_hard_breakout_price(grid, inside, 0.01))
+        wick = Candle(0, 101.0, 101.5, stop - 0.5, 101.0)
+        self.assertAlmostEqual(_hard_breakout_price(grid, wick, 0.01), stop)
+        gap = Candle(0, stop - 1.0, stop - 0.5, stop - 2.0, stop - 1.5)
+        self.assertAlmostEqual(_hard_breakout_price(grid, gap, 0.01), stop - 1.0)
+        self.assertIsNone(_hard_breakout_price(grid, wick, 0.0))
+
+    def _live_step(self, candles: list[Candle], mark: float):
+        import grid_bot
+
+        with tempfile.TemporaryDirectory() as tmp:
+            runner = live_runner(tmp)
+            runner._prepared = True
+            plan, why = build_plan(chop_candles(300, seed=1), spec_alt(), 50.0, params(), leverage=2)
+            assert plan is not None, why
+            runner.grids["ALTUSDT"] = ActiveGrid.from_plan(plan, created_ms=1)
+            runner.client.candles = candle_rows(candles)
+            runner.client.mark = mark
+            with mock.patch.object(grid_bot, "notify"):
+                runner.step()
+            return runner, plan
+
+    def test_live_wick_through_buffer_keeps_grid(self):
+        candles = chop_candles(300, seed=1)
+        lower = build_plan(candles, spec_alt(), 50.0, params(), leverage=2)[0].lower
+        runner, plan = self._live_step(candles, lower * 0.995)  # jenseits 0,25 %, innerhalb 1 %
+        self.assertIn("ALTUSDT", runner.grids)
+        self.assertTrue(runner.grids["ALTUSDT"].orders)
+
+    def test_live_hard_breakout_on_ticker(self):
+        candles = chop_candles(300, seed=1)
+        lower = build_plan(candles, spec_alt(), 50.0, params(), leverage=2)[0].lower
+        runner, _ = self._live_step(candles, lower * 0.985)
+        self.assertNotIn("ALTUSDT", runner.grids)
+        self.assertIn("ALTUSDT", runner.cooldown_until)
+
+    def test_live_breakout_on_closed_hour(self):
+        candles = chop_candles(300, seed=1)
+        lower = build_plan(candles, spec_alt(), 50.0, params(), leverage=2)[0].lower
+        last = candles[-1]
+        drop = lower * 0.996
+        candles.append(Candle(last.ts + 3_600_000, last.close, last.close, drop, drop))
+        runner, _ = self._live_step(candles, lower * 1.001)  # Ticker schon zurück in der Range
+        self.assertNotIn("ALTUSDT", runner.grids)
 
 
 if __name__ == "__main__":

@@ -17,6 +17,23 @@ def _day(ts: int) -> str:
     return datetime.fromtimestamp(ts / 1000, tz=timezone.utc).date().isoformat()
 
 
+def _hard_breakout_price(grid: ActiveGrid, candle: Candle, hard_pct: float) -> float | None:
+    """Notstopp innerhalb der Stunde, wie live am Ticker. Ausstieg am Stopp, bei einer Lücke am Open."""
+    if hard_pct <= 0:
+        return None
+    down = grid.lower * (1.0 - hard_pct)
+    up = grid.upper * (1.0 + hard_pct)
+    hit_down = candle.low <= down
+    hit_up = candle.high >= up
+    if hit_down and hit_up:
+        return candle.close  # Reihenfolge in der Kerze unbekannt
+    if hit_down:
+        return min(down, candle.open)
+    if hit_up:
+        return max(up, candle.open)
+    return None
+
+
 def run_backtest(
     candles: list[Candle],
     spec: ContractSpec,
@@ -153,7 +170,8 @@ def _run(
             candle = series[grid.symbol][i]
             if candle.ts % (8 * 3_600_000) == 0:
                 grid.charge_funding(candle.close, params.funding_rate_8h)
-            breakout = grid.outside(candle.close, params.breakout_buffer_pct)
+            hard = _hard_breakout_price(grid, candle, params.breakout_hard_pct)
+            breakout = hard is not None or grid.outside(candle.close, params.breakout_buffer_pct)
             for order in list(grid.orders.values()):
                 if not (candle.low <= order.price <= candle.high):
                     continue
@@ -166,7 +184,10 @@ def _run(
                     trips += 1
                     if grid.realized > before:
                         trip_wins += 1
-            if breakout:
+            if hard is not None:
+                bank("breakout_hard", hard)
+                stopped = True
+            elif breakout:
                 bank("breakout", candle.close)
                 stopped = True
             elif grid is not None and grid.net_pnl(candle.close) <= -grid.hard_stop_usdt:
@@ -174,7 +195,7 @@ def _run(
                 stopped = True
             elif grid is not None:
                 window = series[grid.symbol][max(0, i - 249): i + 1]
-                if not assess(window, None, params).ranging:
+                if not assess(window, None, params, holding=True).ranging:
                     bank("regime", candle.close)
                     stopped = True
                 else:
@@ -246,7 +267,8 @@ def _run(
         "open_symbol": grid.symbol if grid is not None else "",
         "from_ts": series[symbols[0]][start_index].ts if length else 0,
         "to_ts": series[symbols[0]][length - 1].ts if length else 0,
-        "breakout_exits": int(exit_reasons.get("breakout", 0)),
+        "breakout_exits": int(exit_reasons.get("breakout", 0) + exit_reasons.get("breakout_hard", 0)),
+        "hard_breakout_exits": int(exit_reasons.get("breakout_hard", 0)),
         "profit_factor": (profit_sum / abs(loss_sum)) if loss_sum < 0 else None,
         "closed_grid_wins": closed_wins,
         "closed_grid_losses": closed_losses,
