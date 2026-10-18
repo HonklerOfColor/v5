@@ -20,7 +20,7 @@ Diese Regeln setzt der Bot durch. Wer sie in der Config aufweicht, umgeht die Sc
 ## Wann ein Grid überhaupt aufgemacht wird
 
 10. 1h- und 4h-Regime müssen seitwärts sein: ADX unter der Schwelle, Efficiency Ratio niedrig, Bollinger-Breite oder ATR komprimiert, genug Mittelkreuzungen im Swing-Fenster.
-11. Die Range kommt aus dem Swing-Hoch und Swing-Tief der letzten 48 Stunden. Der Schluss muss im mittleren Bereich liegen, nicht am Rand.
+11. Die Range kommt aus dem Swing-Hoch und Swing-Tief der letzten 48 geschlossenen Stunden. Live verwirft die laufende Kerze, die Bitget als letzte mitliefert, genau wie der Backtest. Der Schluss muss im mittleren Bereich liegen, nicht am Rand.
 12. Die Range darf nicht enger als `MIN_RANGE_PCT` und nicht weiter als `MAX_RANGE_PCT` sein.
 13. Der Abstand zweier Levels muss mindestens dem Dreifachen der Maker-Round-Trip-Fee entsprechen. Bei 0,02 % Maker sind das 0,12 % vom Preis. Passt die gewünschte Levelzahl nicht, wird sie reduziert. Passt auch die Mindestzahl nicht, gibt es kein Grid.
 14. Jede Order muss `minTradeNum` und `minTradeUSDT` (bei diesen Kontrakten 5 USDT) erfüllen, nach Step gerundet, ohne wissenschaftliche Notation. Reicht die Margin für mindestens eine Buy- und eine Sell-Order nicht, wird das Grid abgelehnt. Es wird nicht unter der Börsenmindestgröße „aufgefüllt“.
@@ -29,7 +29,7 @@ Diese Regeln setzt der Bot durch. Wer sie in der Config aufweicht, umgeht die Sc
 
 15. Grid-Einstiege und Take-Profits sind Limit und `force=post_only`. Ein Buy, der den Ask erreichen würde, und ein Sell, der den Bid erreichen würde, werden verworfen.
 16. Take-Profit schließt die Lage (Hedge: `tradeSide=close`). Es wird nicht an derselben Stufe neu eröffnet, solange das Los offen ist.
-17. Inventory je Seite höchstens `MAX_INVENTORY_LEVELS` (Default 3). Margin für Lage plus öffnende Orders höchstens `MAX_MARGIN_FRACTION` des Kapitals (Default 50 %), abzüglich eines kleinen Puffers.
+17. Inventory je Seite höchstens `MAX_INVENTORY_LEVELS` (Default 3). Margin für Lage plus öffnende Orders höchstens `MAX_MARGIN_FRACTION` des Kapitals (Default 50 %), abzüglich eines kleinen Puffers. Kapital ist live das Konto-Equity, nicht `available`. Ist der Kontostand nicht lesbar, bleiben die liegenden Orders unverändert und es startet kein neues Grid.
 18. Notausstieg ist die einzige Taker-Strecke: erst Post-only-Close, `FLATTEN_MAKER_TIMEOUT_S` warten, Rest per Market-IOC. Im Backtest wird der Notausstieg sofort als Taker plus Slippage gerechnet, ohne einen optimistischen Maker-Fill.
 
 ## Ausstieg und Limits
@@ -45,7 +45,7 @@ Diese Regeln setzt der Bot durch. Wer sie in der Config aufweicht, umgeht die Sc
 
 25. Zustand liegt in `state/grid_state.json`. Schreiben ist atomar.
 26. Paper- und Live-Zustand werden nicht vermischt. Ein Wechsel des Modus ignoriert das alte File.
-27. Live beim Start: bekannte Orders mit der Börse abgleichen (Fill übernehmen, lebende Order behalten, Storno verwerfen). Weicht die Börsenposition von den lokalen Lots um mehr als einen Step ab, wird das Symbol eingefroren und nicht weiter bekauft. Fremde Positionen ohne Grid-Zustand werden nicht angefasst. Verwaiste Orders mit der Id-Vorsilbe `grd` werden storniert.
+27. Live beim Start: bekannte Orders mit der Börse abgleichen (Fill übernehmen, lebende Order behalten, Storno verwerfen). Weicht die Börsenposition von den lokalen Lots um mehr als einen Step ab, wird das Symbol eingefroren und nicht weiter bekauft. Fremde Positionen ohne Grid-Zustand werden nicht angefasst. Verwaiste Orders mit der Id-Vorsilbe `grd` werden storniert. Im laufenden Betrieb wird die Börsenlage jede Runde gegen die Lots geprüft; steht eine Abweichung zwei Runden hintereinander, wird das Symbol ebenso eingefroren. Ein Storno fragt danach den Order-Stand ab und verbucht Fills, die vorher noch durchkamen.
 28. Ein Börsen-Stop auf der gesamten Long- bzw. Short-Lage an der Range-Grenze ist versucht (`EXCHANGE_STOP`), ersetzt aber keinen laufenden Prozess. Die lokale Notfall-PnL nach einem Taker-Exit ist eine Schätzung; maßgeblich ist der Fill an der Börse.
 
 ## Telegram

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
+from unittest import mock
 
 from gridbot.backtest_engine import run_backtest
-from gridbot.candles import Candle
+from gridbot.candles import Candle, closed_only
 from gridbot.engine import ActiveGrid, build_plan
 from gridbot.params import GridParams, SymbolConfig, parse_symbols, resolve_mode
 from gridbot.payloads import Intent, build_payload
@@ -291,6 +294,132 @@ class BacktestGuardTests(unittest.TestCase):
         self.assertGreater(quiet["grids_started"], 0)
         self.assertGreater(quiet["fees"], 0)
         self.assertGreater(quiet["maker_fills"], 0)
+
+
+class LiveClient:
+    """Antwortet wie Bitget, ohne Netz. Nur was der Runner live abfragt."""
+
+    def __init__(self):
+        self.equity: float | None = 50.0
+        self.available: float | None = 10.0
+        self.positions: list[dict] = []
+        self.details: dict[str, dict] = {}
+        self.cancelled: list[str] = []
+        self.candles: list[list] = []
+
+    def get_equity(self):
+        return self.equity
+
+    def get_available(self):
+        return self.available
+
+    def get_positions(self, symbol=None):
+        return list(self.positions)
+
+    def cancel_order(self, symbol, order_id=None, client_oid=None):
+        self.cancelled.append(client_oid)
+        return {"code": "00000"}
+
+    def get_order_detail(self, symbol, order_id=None, client_oid=None):
+        return self.details.get(client_oid, {})
+
+    def get_candles(self, symbol, granularity, limit=200):
+        return list(self.candles)
+
+
+def live_runner(tmp: str):
+    import grid_bot
+
+    with mock.patch.object(grid_bot, "STATE_PATH", Path(tmp) / "grid_state.json"):
+        runner = grid_bot.Runner("live", None, params(), [SymbolConfig("ALTUSDT", 2)])
+    runner.client = LiveClient()
+    runner.specs["ALTUSDT"] = spec_alt()
+    runner.anchor = 50.0
+    return runner
+
+
+def alt_grid(created_ms: int = 1_792_314_000_000) -> ActiveGrid:
+    plan, why = build_plan(bounded_range(80, 100.0, 103.0, 101.5), spec_alt(), 50.0, params(), leverage=2)
+    assert plan is not None, why
+    grid = ActiveGrid.from_plan(plan, created_ms=created_ms)
+    grid.sync_orders(101.5, 50.0, spec_alt(), params())
+    return grid
+
+
+class LiveLoopTests(unittest.TestCase):
+    def test_forming_candle_is_dropped(self):
+        import grid_bot
+
+        hour = 3_600_000
+        client = LiveClient()
+        client.candles = [[str(i * hour), "1", "1", "1", "1", "1"] for i in range(3)]
+        now = 2 * hour + hour // 2  # die Kerze ab 2h läuft noch
+        candles = grid_bot.load_candles(client, "ALTUSDT", "1H", 3, now_ms=now)
+        self.assertEqual([candle.ts for candle in candles], [0, hour])
+        self.assertEqual(len(closed_only(grid_bot.load_candles(client, "ALTUSDT", "1H", 3, now_ms=3 * hour), "1H", 3 * hour)), 3)
+
+    def test_sizing_uses_equity_not_available(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runner = live_runner(tmp)
+            self.assertEqual(runner.sizing_equity({}), 50.0)  # nicht available=10
+            runner.client.equity = 40.0
+            self.assertEqual(runner.sizing_equity({}), 40.0)
+            runner.client.equity = None
+            self.assertIsNone(runner.sizing_equity({}))
+
+    def test_resting_orders_survive_a_second_sync(self):
+        grid = alt_grid()
+        before = set(grid.orders)
+        cancelled = grid.sync_orders(101.5, 50.0, spec_alt(), params())
+        self.assertEqual(cancelled, [])
+        self.assertEqual(set(grid.orders), before)
+
+    def test_position_mismatch_freezes_after_two_rounds(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runner = live_runner(tmp)
+            grid = alt_grid()
+            runner.grids["ALTUSDT"] = grid
+            runner.client.positions = [{"symbol": "ALTUSDT", "holdSide": "long", "total": str(grid.qty)}]
+            runner._check_position(grid)
+            self.assertNotIn("ALTUSDT", runner.frozen)
+            runner._check_position(grid)
+            self.assertIn("ALTUSDT", runner.frozen)
+            self.assertEqual(grid.orders, {})
+
+            # Abweichung, dann Gleichstand, dann wieder Abweichung: der Zähler beginnt neu.
+            calm = alt_grid()
+            runner.frozen.clear()
+            off = [{"symbol": "ALTUSDT", "holdSide": "long", "total": str(calm.qty)}]
+            for positions in (off, [], off):
+                runner.client.positions = positions
+                runner._check_position(calm)
+            self.assertNotIn("ALTUSDT", runner.frozen)
+            self.assertTrue(calm.orders)
+
+    def test_fill_before_cancel_is_booked(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runner = live_runner(tmp)
+            grid = alt_grid()
+            buy = next(order for order in grid.orders.values() if order.book_side == "buy")
+            buy.order_id = "id1"
+            runner.client.details[buy.client_oid] = {"state": "canceled", "baseVolume": str(buy.size), "priceAvg": str(buy.price)}
+            runner._cancel_and_absorb(grid, buy)
+            self.assertIn(buy.client_oid, runner.client.cancelled)
+            self.assertNotIn(buy.client_oid, grid.orders)
+            self.assertAlmostEqual(grid.long_qty, buy.size, places=8)
+
+    def test_client_oids_differ_between_grids_and_symbols(self):
+        first = alt_grid(created_ms=1_792_314_000_000)
+        second = alt_grid(created_ms=1_792_336_000_000)
+        other = ActiveGrid.from_dict({**first.to_dict(), "symbol": "BETAUSDT", "orders": [], "oid_seq": 0})
+        other.sync_orders(101.5, 50.0, spec_alt(), params())
+        ids = [set(grid.orders) for grid in (first, second, other)]
+        self.assertFalse(ids[0] & ids[1])
+        self.assertFalse(ids[0] & ids[2])
+        for oid in set().union(*ids):
+            self.assertTrue(oid.startswith("grd"))
+            self.assertTrue(oid.isalnum())
+            self.assertLessEqual(len(oid), 32)
 
 
 if __name__ == "__main__":
