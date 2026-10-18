@@ -17,8 +17,8 @@ from loguru import logger
 
 from bitget_client import BitgetClient
 from gridbot import __version__
-from gridbot.candles import parse_candle, sort_unique
-from gridbot.engine import ActiveGrid, build_plan
+from gridbot.candles import closed_only, parse_candle, sort_unique
+from gridbot.engine import ActiveGrid, RestingOrder, build_plan
 from gridbot.params import keys_look_real, params_from_config, parse_symbols, resolve_mode
 from gridbot.payloads import Intent, build_payload
 from gridbot.reconcile import absorb_exchange_order, position_mismatch
@@ -31,6 +31,7 @@ import telegram_notify
 
 KILL_PATH = Path("KILL_SWITCH")
 STATE_PATH = Path("state/grid_state.json")
+MISMATCH_ROUNDS = 2
 
 
 def setup_logging(level: str) -> None:
@@ -44,9 +45,11 @@ def setup_logging(level: str) -> None:
     logger.add("logs/grid_bot.log", level=level, rotation="10 MB", retention="14 days")
 
 
-def load_candles(client: BitgetClient, symbol: str, granularity: str, limit: int):
+def load_candles(client: BitgetClient, symbol: str, granularity: str, limit: int, now_ms: int | None = None):
+    """Nur geschlossene Kerzen, wie im Backtest. Die laufende Kerze fällt weg."""
     rows = client.get_candles(symbol, granularity, limit)
-    return sort_unique(parse_candle(row) for row in rows)
+    now_ms = int(time.time() * 1000) if now_ms is None else now_ms
+    return closed_only(sort_unique(parse_candle(row) for row in rows), granularity, now_ms)
 
 
 def load_spec(client: BitgetClient, symbol: str, cache: dict[str, ContractSpec]) -> ContractSpec:
@@ -109,6 +112,7 @@ class Runner:
         self.cooldown_until = {key: int(value) for key, value in (raw.get("cooldown_until") or {}).items()}
         self.specs: dict[str, ContractSpec] = {}
         self.stop_sig: dict[str, tuple] = {}
+        self.mismatches: dict[str, int] = {}
         self._prepared = False
         self.store = StateStore(STATE_PATH)
 
@@ -131,14 +135,21 @@ class Runner:
         self.anchor = self.params.paper_equity
         logger.info(f"Paper-Startkapital: {self.anchor:.2f} USDT")
 
-    def sizing_equity(self, marks: dict[str, float]) -> float:
+    def sizing_equity(self, marks: dict[str, float]) -> float | None:
+        """Kapital für das Grid-Budget. None heißt: Kontostand unbekannt, nichts ändern.
+
+        Live zählt das Konto-Equity, nicht `available`. `available` hat die Margin
+        von Lage und offenen Orders schon abgezogen, `desired_intents` zieht die
+        Lage-Margin selbst ab. Mit `available` schrumpfte das Budget nach jedem
+        Platzieren, und liegende Orders wurden storniert und neu gesetzt.
+        """
         session = self.session_equity(marks)
         if self.mode != "live":
             return session
-        available = self.client.get_available()
-        if available is None:
-            return 0.0
-        return min(session, available)
+        equity = self.client.get_equity()
+        if equity is None or equity <= 0:
+            return None
+        return min(session, equity)
 
     def prepare_live(self) -> None:
         if self.mode != "live" or self._prepared:
@@ -221,6 +232,7 @@ class Runner:
 
         for symbol, grid in list(self.grids.items()):
             self._poll_fills(grid)
+            self._check_position(grid)
             mark = marks.get(symbol) or 0.0
             if mark <= 0:
                 logger.warning(f"{symbol}: kein Preis")
@@ -246,15 +258,23 @@ class Runner:
             if symbol in self.frozen:
                 continue
             spec = load_spec(self.client, symbol, self.specs)
-            cancelled = grid.sync_orders(mark, self.sizing_equity(marks), spec, self.params)
+            equity = self.sizing_equity(marks)
+            if equity is None:
+                logger.warning(f"{symbol}: Kontostand nicht lesbar, Orders bleiben wie sie sind.")
+                continue
+            cancelled = grid.sync_orders(mark, equity, spec, self.params)
             for order in cancelled:
-                if self.mode == "live":
-                    self.client.cancel_order(symbol, order.order_id, order.client_oid)
+                self._cancel_and_absorb(grid, order)
             self._push_orders(grid, spec)
             self._exchange_stop(grid, spec)
 
         now_ms = int(time.time() * 1000)
+        equity = None
         if len(self.grids) < self.params.max_active_grids and not self.risk.halted:
+            equity = self.sizing_equity(marks)
+            if equity is None:
+                logger.warning("Kontostand nicht lesbar, kein neues Grid.")
+        if equity is not None:
             for sym in self.symbols:
                 if sym.symbol in self.grids or sym.symbol in self.frozen:
                     continue
@@ -270,13 +290,13 @@ class Runner:
                     logger.info(f"{sym.symbol}: kein Grid — {regime.reason_text()}")
                     continue
                 spec = load_spec(self.client, sym.symbol, self.specs)
-                plan, why = build_plan(candles_1h, spec, self.sizing_equity(marks), self.params, sym.leverage)
+                plan, why = build_plan(candles_1h, spec, equity, self.params, sym.leverage)
                 if plan is None:
                     logger.info(f"{sym.symbol}: Range, aber kein Grid ({why})")
                     continue
                 grid = ActiveGrid.from_plan(plan, created_ms=now_ms)
                 mark = marks.get(sym.symbol) or candles_1h[-1].close
-                grid.sync_orders(mark, self.sizing_equity(marks), spec, self.params)
+                grid.sync_orders(mark, equity, spec, self.params)
                 self.grids[sym.symbol] = grid
                 self._push_orders(grid, spec)
                 logger.info(
@@ -300,31 +320,31 @@ class Runner:
             self.risk.release_kill_if_clear()
             logger.info("Kill-Switch aufgehoben")
 
+    def _absorb_detail(self, grid: ActiveGrid, order: RestingOrder, detail: dict) -> str:
+        return absorb_exchange_order(
+            grid,
+            order,
+            {
+                "state": str(detail.get("state", "")).lower(),
+                "filled": float(detail.get("baseVolume") or 0),
+                "avg": float(detail.get("priceAvg") or order.price),
+            },
+            self.params.maker_fee,
+        )
+
     def _poll_fills(self, grid: ActiveGrid) -> None:
         if self.mode == "live":
             for order in list(grid.orders.values()):
                 detail = self.client.get_order_detail(grid.symbol, order.order_id, order.client_oid)
-                if not detail:
-                    continue
-                absorb_exchange_order(
-                    grid,
-                    order,
-                    {
-                        "state": str(detail.get("state", "")).lower(),
-                        "filled": float(detail.get("baseVolume") or 0),
-                        "avg": float(detail.get("priceAvg") or order.price),
-                    },
-                    self.params.maker_fee,
-                )
+                if detail:
+                    self._absorb_detail(grid, order, detail)
             return
-        candles = load_candles(self.client, grid.symbol, "1m", 3)
-        if not candles:
+        closed = load_candles(self.client, grid.symbol, "1m", 3)
+        if not closed:
             return
         last = self.last_1m.get(grid.symbol, 0)
-        closed = candles[:-1]
         if last == 0:
-            if closed:
-                self.last_1m[grid.symbol] = closed[-1].ts
+            self.last_1m[grid.symbol] = closed[-1].ts
             return
         for candle in closed:
             if candle.ts <= last:
@@ -373,11 +393,54 @@ class Runner:
                 logger.warning(f"Order abgelehnt {grid.symbol}: {result.get('code')} {result.get('msg')}")
                 grid.orders.pop(order.client_oid, None)
 
+    def _check_position(self, grid: ActiveGrid) -> None:
+        """Live: Börsenlage gegen die lokalen Lots, jede Runde.
+
+        Ein Fill zwischen Order-Abfrage und Positions-Abfrage sieht wie eine
+        Abweichung aus und ist in der nächsten Runde verbucht. Eingefroren wird
+        deshalb erst, wenn die Abweichung zwei Runden hintereinander steht.
+        """
+        if self.mode != "live" or grid.symbol in self.frozen:
+            return
+        long_qty, short_qty = _position_qtys(self.client.get_positions(grid.symbol))
+        spec = load_spec(self.client, grid.symbol, self.specs)
+        if not position_mismatch(grid, long_qty, short_qty, spec.qty_step):
+            self.mismatches.pop(grid.symbol, None)
+            return
+        seen = self.mismatches.get(grid.symbol, 0) + 1
+        self.mismatches[grid.symbol] = seen
+        text = (
+            f"{grid.symbol}: Lage weicht ab, lokal L={grid.long_qty} S={grid.short_qty}, "
+            f"Börse L={long_qty} S={short_qty}"
+        )
+        if seen < MISMATCH_ROUNDS:
+            logger.warning(f"{text}. Prüfe in der nächsten Runde erneut.")
+            return
+        logger.error(f"{text}. Keine neuen Orders.")
+        notify(self.cfg, f"Lage weicht ab, {grid.symbol} eingefroren")
+        self.frozen.add(grid.symbol)
+        self.mismatches.pop(grid.symbol, None)
+        self._cancel_local_orders(grid)
+
+    def _cancel_and_absorb(self, grid: ActiveGrid, order: RestingOrder) -> None:
+        """Storniert live und verbucht, was bis zum Storno gefüllt wurde."""
+        grid.orders.pop(order.client_oid, None)
+        if self.mode != "live":
+            return
+        result = self.client.cancel_order(grid.symbol, order.order_id, order.client_oid)
+        if result.get("code") != "00000":
+            logger.warning(f"Storno {grid.symbol} {order.client_oid}: {result.get('code')} {result.get('msg', '')}")
+        detail = self.client.get_order_detail(grid.symbol, order.order_id, order.client_oid)
+        if not detail:
+            return
+        before = order.filled_ack
+        self._absorb_detail(grid, order, detail)
+        if order.filled_ack > before:
+            logger.info(f"Fill vor Storno {grid.symbol} {order.client_oid}: {order.filled_ack - before}")
+
     def _cancel_local_orders(self, grid: ActiveGrid) -> None:
         for order in list(grid.orders.values()):
-            if self.mode == "live":
-                self.client.cancel_order(grid.symbol, order.order_id, order.client_oid)
-            grid.orders.pop(order.client_oid, None)
+            self._cancel_and_absorb(grid, order)
 
     def flatten(self, grid: ActiveGrid, reason: str, mark: float) -> None:
         logger.warning(f"Ausstieg {grid.symbol}: {reason}")
@@ -390,6 +453,7 @@ class Runner:
         self.banked += grid.net_pnl(mark)
         self.cooldown_until[grid.symbol] = int(time.time() * 1000) + self.params.cooldown_bars * 3_600_000
         self.grids.pop(grid.symbol, None)
+        self.mismatches.pop(grid.symbol, None)
 
     def _flatten_live(self, grid: ActiveGrid, mark: float) -> None:
         """Erst Post-only-Close mit Timeout, danach Market-IOC. Danach lokale Lots glattziehen."""

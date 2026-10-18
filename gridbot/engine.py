@@ -132,9 +132,15 @@ class ActiveGrid:
         )
 
     def next_oid(self, level: int, purpose: str) -> str:
+        """Bitget lehnt doppelte clientOids ab. Symbol und Startzeit machen die Id je Grid eindeutig."""
         self.oid_seq += 1
         tag = {"open": "o", "close": "c", "emergency": "e"}.get(purpose, "x")
-        return f"grd{self.oid_seq:010d}{level:02d}{tag}"
+        return f"grd{self.oid_prefix()}{self.oid_seq:06d}{level:02d}{tag}"
+
+    def oid_prefix(self) -> str:
+        # Startzeit fest 7 Stellen breit, damit Kürzel und Zeit nicht ineinanderlaufen.
+        root = self.symbol[:-4] if self.symbol.endswith("USDT") else self.symbol
+        return f"{root[:6].lower()}{_base36(self.created_ms // 1000).rjust(7, '0')}"
 
     @property
     def long_qty(self) -> float:
@@ -403,6 +409,17 @@ class ActiveGrid:
             order = RestingOrder.from_dict(item)
             grid.orders[order.client_oid] = order
         return grid
+
+
+def _base36(value: int) -> str:
+    digits = "0123456789abcdefghijklmnopqrstuvwxyz"
+    value = max(0, int(value))
+    out = ""
+    while True:
+        value, rest = divmod(value, 36)
+        out = digits[rest] + out
+        if value == 0:
+            return out
 
 
 def intent_key(intent: Intent) -> tuple:

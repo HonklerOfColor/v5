@@ -34,6 +34,23 @@ def sort_unique(candles: list[Candle]) -> list[Candle]:
     return [by_ts[ts] for ts in sorted(by_ts)]
 
 
+GRANULARITY_MS = {
+    "1m": 60_000,
+    "5m": 300_000,
+    "15m": 900_000,
+    "30m": 1_800_000,
+    "1H": 3_600_000,
+    "4H": 14_400_000,
+    "1D": 86_400_000,
+}
+
+
+def closed_only(candles: list[Candle], granularity: str, now_ms: int) -> list[Candle]:
+    """Wirft Kerzen weg, die noch laufen. /market/candles liefert die offene Kerze als letzte."""
+    span = GRANULARITY_MS[granularity]
+    return [candle for candle in candles if candle.ts + span <= now_ms]
+
+
 def aggregate(candles: list[Candle], hours: int = 4) -> list[Candle]:
     """Fasst 1h-Kerzen zu abgeschlossenen N-Stunden-Kerzen zusammen."""
     ms = hours * 3_600_000
