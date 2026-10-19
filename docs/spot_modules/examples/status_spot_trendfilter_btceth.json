@@ -1,0 +1,139 @@
+{
+  "module": "spot_trendfilter_btceth",
+  "title": "Trendfilter BTC+ETH (SMA-Ensemble, Long/Cash)",
+  "mode": "paper",
+  "paper": true,
+  "bot_mode": "paper",
+  "enabled": true,
+  "prereg": "docs/spot_modules/PREREG_trendfilter_dca.md (Test 1 Primärvariante: Ensemble, täglich, 50/50)",
+  "parameters": {
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT"
+    ],
+    "sleeve": 0.5,
+    "sma_windows": [
+      20,
+      50,
+      100,
+      150,
+      200
+    ],
+    "rebalance_threshold": 0.2,
+    "fee": 0.001,
+    "slippage": 0.0005,
+    "granularity": "1Dutc"
+  },
+  "start_capital": 500.0,
+  "equity": 499.550079,
+  "cash": 199.702506,
+  "exposure": 0.600235,
+  "positions": [
+    {
+      "symbol": "BTCUSDT",
+      "qty": 0.091383,
+      "price": 546.8685452349981,
+      "value_usdt": 49.974488,
+      "weight": 0.100039,
+      "target_weight": 0.1
+    },
+    {
+      "symbol": "ETHUSDT",
+      "qty": 0.9377,
+      "price": 266.47444220329953,
+      "value_usdt": 249.873084,
+      "weight": 0.500196,
+      "target_weight": 0.5
+    }
+  ],
+  "targets": {
+    "BTCUSDT": 0.1,
+    "ETHUSDT": 0.5
+  },
+  "trades": {
+    "count": 2,
+    "this_month": 2,
+    "fees_total": 0.299997,
+    "last": [
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "BTCUSDT",
+        "side": "buy",
+        "qty": 0.091383,
+        "price": 547.1419795076156,
+        "fee": 0.04999947551334444,
+        "value_usdt": 49.999475513344436,
+        "reason": "threshold"
+      },
+      {
+        "ts_ms": 1792281960000,
+        "day": "2026-10-18",
+        "symbol": "ETHUSDT",
+        "side": "buy",
+        "qty": 0.9377,
+        "price": 266.60767942440117,
+        "fee": 0.24999802099626098,
+        "value_usdt": 249.99802099626098,
+        "reason": "flag"
+      }
+    ]
+  },
+  "drawdown": 0.0009,
+  "shadow": {
+    "equity": 499.55,
+    "exposure": 0.60054,
+    "positions": {
+      "BTCUSDT": 50.0,
+      "ETHUSDT": 250.0
+    },
+    "costs_total": 0.45
+  },
+  "deviation_pp": 0.0,
+  "deviation_window_days": 1,
+  "alarm": false,
+  "alarm_reasons": [],
+  "alarm_since": "",
+  "alarm_rules": {
+    "drawdown": 0.5,
+    "deviation_pp": 5.0,
+    "deviation_window_days": 90,
+    "trades_per_month": 25
+  },
+  "last_run": {
+    "run_day": "2026-10-18",
+    "signal_day": "2026-10-17",
+    "ts_ms": 1792281960000
+  },
+  "next_attempt_ms": 0,
+  "last_error": "",
+  "notes": [],
+  "signals": {
+    "coins": {
+      "BTCUSDT": {
+        "ensemble": 0.2,
+        "target": 0.1,
+        "close": 546.3222230119862,
+        "flag": false
+      },
+      "ETHUSDT": {
+        "ensemble": 1.0,
+        "target": 0.5,
+        "close": 266.20823396933025,
+        "flag": true
+      }
+    }
+  },
+  "equity_history": [
+    {
+      "day": 20743,
+      "date": "2026-10-17",
+      "paper": 499.55007872,
+      "shadow": 499.55,
+      "exposure": 0.600235,
+      "shadow_exposure": 0.60054,
+      "cash": 199.70250599,
+      "trades": 2
+    }
+  ]
+}

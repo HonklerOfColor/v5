@@ -11,6 +11,7 @@ from loguru import logger
 
 from unified_bot.runner import Bot, setup_logging
 from unified_bot.settings import load_settings
+from unified_bot.spot.runner import SpotRunner
 from unified_bot.status_server import start_status_server
 
 
@@ -26,6 +27,10 @@ def main(argv: list[str] | None = None) -> None:
         settings.status_port = args.port
     setup_logging(settings.log_level)
     bot = Bot(settings, state_path=Path(args.state))
+    if settings.spot_modules_enabled:
+        bot.attach_spot(SpotRunner(settings, Path(args.state).parent, notify=bot._notify))
+    else:
+        logger.info("Spot-Module aus (SPOT_MODULES_ENABLED = False).")
     server = start_status_server(bot, settings.status_host, settings.status_port)
     thread = threading.Thread(target=server.serve_forever, name="status", daemon=True)
     thread.start()

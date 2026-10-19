@@ -63,6 +63,10 @@ class Settings:
     account_name: str
     strategies: dict[str, StrategySettings]
     grid: dict = field(default_factory=dict)
+    # Spot-Module (Paper only). Startkapital je Modul in USDT, unabhängig vom Perp-Buch.
+    spot_modules_enabled: bool = True
+    spot_enabled: dict[str, bool] = field(default_factory=dict)
+    spot_capital: dict[str, float] = field(default_factory=dict)
 
     def strategy(self, strategy_id: str) -> StrategySettings:
         return self.strategies[strategy_id]
@@ -212,6 +216,9 @@ def base_settings() -> Settings:
         account_name="at-HNK",
         strategies=default_strategies(),
         grid=_grid_defaults(),
+        spot_modules_enabled=True,
+        spot_enabled={"spot_trend_ensemble": True, "spot_trendfilter_btceth": True},
+        spot_capital={"spot_trend_ensemble": 500.0, "spot_trendfilter_btceth": 500.0},
     )
 
 
@@ -316,6 +323,15 @@ def load_settings(cfg: object | None = None, force_live: bool = False) -> Settin
         if cfg is not None and hasattr(cfg, attr):
             grid[key] = getattr(cfg, attr)
     settings.grid = grid
+    settings.spot_modules_enabled = bool(_get(cfg, "SPOT_MODULES_ENABLED", settings.spot_modules_enabled))
+    settings.spot_enabled = {
+        "spot_trend_ensemble": bool(_get(cfg, "SPOT_TREND_ENABLED", True)),
+        "spot_trendfilter_btceth": bool(_get(cfg, "SPOT_TF_ENABLED", True)),
+    }
+    settings.spot_capital = {
+        "spot_trend_ensemble": float(_get(cfg, "SPOT_TREND_CAPITAL_USDT", 500.0)),
+        "spot_trendfilter_btceth": float(_get(cfg, "SPOT_TF_CAPITAL_USDT", 500.0)),
+    }
     validate_settings(settings)
     return settings
 
@@ -344,6 +360,9 @@ def validate_settings(settings: Settings) -> None:
         raise SystemExit(f"Allokationen summieren sich auf {total:.2%}, mehr als 100 %.")
     if settings.mode == "live" and not settings.keys_look_real():
         raise SystemExit("Live abgelehnt: API-Keys fehlen oder sind Platzhalter.")
+    for module_id, capital in settings.spot_capital.items():
+        if capital <= 0:
+            raise SystemExit(f"{module_id}: Paper-Startkapital muss größer als 0 sein.")
     if settings.account_uid != "9711026741":
         raise SystemExit(
             "Nur das Konto UID 9711026741 (at-HNK) ist zugelassen. "

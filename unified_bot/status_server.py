@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -27,7 +28,43 @@ def _handler(bot):
                 self._json(body)
                 return
             if path in ("/", "/index.html"):
-                self._html(_page(bot.status_payload(), bot.closed_payload()))
+                self._html(_page(bot.status_payload(), bot.closed_payload(), bot.spot_index_payload()))
+                return
+            if path.startswith("/api/v5/spot"):
+                self._spot(path)
+                return
+            self._json({"error": "not_found"}, status=404)
+
+        def _spot(self, path: str) -> None:
+            parts = [part for part in path.split("/") if part]
+            # parts: api, v5, spot[, <modul>[, trades.csv]]
+            if len(parts) == 3:
+                index = bot.spot_index_payload()
+                if index is None:
+                    self._json({"error": "spot_modules_not_attached"}, status=404)
+                else:
+                    self._json(index)
+                return
+            module_id = parts[3]
+            if len(parts) == 5 and parts[4] == "trades.csv":
+                text = bot.spot_trades_csv(module_id)
+                if text is None:
+                    self._json({"error": "unknown_module"}, status=404)
+                    return
+                raw = text.encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/csv; charset=utf-8")
+                self.send_header("Content-Disposition", f'attachment; filename="{module_id}_trades.csv"')
+                self.send_header("Content-Length", str(len(raw)))
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+            if len(parts) == 4:
+                body = bot.spot_payload(module_id)
+                if body is None:
+                    self._json({"error": "unknown_module"}, status=404)
+                else:
+                    self._json(body)
                 return
             self._json({"error": "not_found"}, status=404)
 
@@ -53,7 +90,34 @@ def _handler(bot):
     return Handler
 
 
-def _page(status: dict, closed: dict) -> str:
+def _spot_section(spot: dict | None) -> str:
+    if not spot:
+        return "<h2>Spot-Module (Paper)</h2><p>Nicht angehängt.</p>"
+    rows = []
+    for module_id, info in (spot.get("modules") or {}).items():
+        last = (info.get("last_run") or {}).get("signal_day") or "—"
+        rows.append(
+            "<tr>"
+            f"<td><a href=\"/api/v5/spot/{html.escape(str(module_id))}\">{html.escape(str(module_id))}</a></td>"
+            f"<td>{'an' if info.get('enabled') else 'aus'}</td>"
+            f"<td>{float(info.get('start_capital') or 0):.2f}</td>"
+            f"<td>{float(info.get('equity') or 0):.2f}</td>"
+            f"<td>{html.escape(str(last))}</td>"
+            f"<td>{'ALARM' if info.get('alarm') else 'nein'}</td>"
+            f"<td><a href=\"/api/v5/spot/{html.escape(str(module_id))}/trades.csv\">CSV</a></td>"
+            "</tr>"
+        )
+    return (
+        "<h2>Spot-Module (Paper)</h2>"
+        f"<p>Modus <strong>paper</strong>, Bot-Modus {html.escape(str(spot.get('bot_mode')))}. "
+        "Eigene Ledger, keine Spot-Orders. <a href=\"/api/v5/spot\">/api/v5/spot</a></p>"
+        "<table><thead><tr><th>Modul</th><th>Status</th><th>Start</th><th>Equity</th>"
+        "<th>Signaltag</th><th>Alarm</th><th>Trades</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
+    )
+
+
+def _page(status: dict, closed: dict, spot: dict | None = None) -> str:
     rows = []
     for strategy_id, sleeve in status.get("sleeves", {}).items():
         flag = "an" if sleeve["enabled"] and not sleeve["entries_paused"] else "aus"
@@ -121,6 +185,7 @@ def _page(status: dict, closed: dict) -> str:
   </table>
   <h2>Letzter Zyklus</h2>
   <ul>{notes}</ul>
+  {_spot_section(spot)}
   <h2>Geschlossene Trades ({closed.get('count', 0)})</h2>
   <table>
     <thead><tr><th>Strategie</th><th>Symbol</th><th>Seite</th><th>Netto</th><th>Grund</th></tr></thead>
