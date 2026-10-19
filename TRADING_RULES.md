@@ -34,20 +34,21 @@ Diese Regeln setzt der Bot durch. Wer sie in der Config aufweicht, umgeht die Sc
 
 ## Ausstieg und Limits
 
-19. Schluss außerhalb der Range plus `BREAKOUT_BUFFER_PCT`: Grid aus, Orders weg, Lage zu.
-20. Regime dreht auf Trend: dasselbe.
-21. Harter Stop je Grid: Netto aus realisiert, offen, Fees und Funding kleiner oder gleich `-GRID_HARD_STOP_PCT` des Kapitals beim Aufmachen.
-22. Tagesverlust: vom Equity zum UTC-Tagesstart mehr als `DAILY_LOSS_PCT` weg. Dann zu, und an diesem UTC-Tag kein neues Grid. Am nächsten Tag ist das Tageslimit zurückgesetzt, der Kill-Switch nicht.
-23. Kill-Switch (`KILL_SWITCH`-Datei oder Config) schließt alles und bleibt, bis die Datei weg ist und der Config-Schalter aus ist.
-24. Nach einem Ausstieg Cooldown von `COOLDOWN_BARS` Stunden auf diesem Symbol.
+19. Schluss der letzten geschlossenen Stundenkerze außerhalb der Range plus `BREAKOUT_BUFFER_PCT`: Grid aus, Orders weg, Lage zu. Live und Backtest rechnen gleich.
+20. Preis außerhalb der Range plus `BREAKOUT_HARD_PCT`, auch innerhalb der Stunde (live am Ticker): dasselbe, sofort.
+21. Regime nicht mehr seitwärts: dasselbe. Default sind dieselben Filter wie beim Einstieg. Optional gibt es eine Hysterese: ADX-Schwellen plus `ADX_EXIT_MARGIN`, ER plus `ER_EXIT_MARGIN`, mit `EXIT_TREND_ONLY` ohne Kompression und Kreuzungen. Sind die Kerzen unvollständig, wird nicht ausgestiegen, sondern in der nächsten Runde geprüft.
+22. Harter Stop je Grid: Netto aus realisiert, offen, Fees und Funding kleiner oder gleich `-GRID_HARD_STOP_PCT` des Kapitals beim Aufmachen.
+23. Tagesverlust: vom Equity zum UTC-Tagesstart mehr als `DAILY_LOSS_PCT` weg. Dann zu, und an diesem UTC-Tag kein neues Grid. Am nächsten Tag ist das Tageslimit zurückgesetzt, der Kill-Switch nicht.
+24. Kill-Switch (`KILL_SWITCH`-Datei oder Config) schließt alles und bleibt, bis die Datei weg ist und der Config-Schalter aus ist.
+25. Nach einem Ausstieg Cooldown von `COOLDOWN_BARS` Stunden auf diesem Symbol.
 
 ## Neustart
 
-25. Zustand liegt in `state/grid_state.json`. Schreiben ist atomar.
-26. Paper- und Live-Zustand werden nicht vermischt. Ein Wechsel des Modus ignoriert das alte File.
-27. Live beim Start: bekannte Orders mit der Börse abgleichen (Fill übernehmen, lebende Order behalten, Storno verwerfen). Weicht die Börsenposition von den lokalen Lots um mehr als einen Step ab, wird das Symbol eingefroren und nicht weiter bekauft. Fremde Positionen ohne Grid-Zustand werden nicht angefasst. Verwaiste Orders mit der Id-Vorsilbe `grd` werden storniert. Im laufenden Betrieb wird die Börsenlage jede Runde gegen die Lots geprüft; steht eine Abweichung zwei Runden hintereinander, wird das Symbol ebenso eingefroren. Ein Storno fragt danach den Order-Stand ab und verbucht Fills, die vorher noch durchkamen.
-28. Ein Börsen-Stop auf der gesamten Long- bzw. Short-Lage an der Range-Grenze ist versucht (`EXCHANGE_STOP`), ersetzt aber keinen laufenden Prozess. Die lokale Notfall-PnL nach einem Taker-Exit ist eine Schätzung; maßgeblich ist der Fill an der Börse.
+26. Zustand liegt in `state/grid_state.json`. Schreiben ist atomar.
+27. Paper- und Live-Zustand werden nicht vermischt. Ein Wechsel des Modus ignoriert das alte File.
+28. Live beim Start: bekannte Orders mit der Börse abgleichen (Fill übernehmen, lebende Order behalten, Storno verwerfen). Weicht die Börsenposition von den lokalen Lots um mehr als einen Step ab, wird das Symbol eingefroren und nicht weiter bekauft. Fremde Positionen ohne Grid-Zustand werden nicht angefasst. Verwaiste Orders mit der Id-Vorsilbe `grd` werden storniert. Im laufenden Betrieb wird die Börsenlage jede Runde gegen die Lots geprüft; steht eine Abweichung zwei Runden hintereinander, wird das Symbol ebenso eingefroren. Ein Storno fragt danach den Order-Stand ab und verbucht Fills, die vorher noch durchkamen.
+29. Ein Börsen-Stop auf der gesamten Long- bzw. Short-Lage am Notstopp (Range plus `BREAKOUT_HARD_PCT`) ist versucht (`EXCHANGE_STOP`), ersetzt aber keinen laufenden Prozess. Die lokale Notfall-PnL nach einem Taker-Exit ist eine Schätzung; maßgeblich ist der Fill an der Börse.
 
 ## Telegram
 
-29. `TG_TOKEN` und `TG_CHAT_ID` leer lassen, wenn nichts gesendet werden soll. Alternativ die Umgebungsvariablen `TELEGRAM_BOT_TOKEN` und `TELEGRAM_CHAT_ID`. Der Token wird nicht geloggt.
+30. `TG_TOKEN` und `TG_CHAT_ID` leer lassen, wenn nichts gesendet werden soll. Alternativ die Umgebungsvariablen `TELEGRAM_BOT_TOKEN` und `TELEGRAM_CHAT_ID`. Der Token wird nicht geloggt.

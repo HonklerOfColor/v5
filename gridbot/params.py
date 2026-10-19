@@ -21,6 +21,9 @@ class GridParams:
     atr_pct_max: float = 0.015
     er_lookback: int = 24
     er_max: float = 0.35
+    adx_exit_margin: float = 0.0
+    er_exit_margin: float = 0.0
+    exit_trend_only: bool = False
     min_mid_crosses: int = 3
     swing_lookback: int = 48
     min_range_pct: float = 0.008
@@ -34,6 +37,7 @@ class GridParams:
     max_inventory_levels: int = 3
     level_notional_fraction: float = 0.20
     breakout_buffer_pct: float = 0.0025
+    breakout_hard_pct: float = 0.01
     hard_stop_pct: float = 0.06
     daily_loss_pct: float = 0.05
     taker_slippage_pct: float = 0.0002
@@ -83,6 +87,9 @@ def params_from_config(cfg: object | None) -> GridParams:
         atr_pct_max=float(_get(cfg, "ATR_PCT_MAX", base.atr_pct_max)),
         er_lookback=int(_get(cfg, "ER_LOOKBACK", base.er_lookback)),
         er_max=float(_get(cfg, "ER_MAX", base.er_max)),
+        adx_exit_margin=float(_get(cfg, "ADX_EXIT_MARGIN", base.adx_exit_margin)),
+        er_exit_margin=float(_get(cfg, "ER_EXIT_MARGIN", base.er_exit_margin)),
+        exit_trend_only=bool(_get(cfg, "EXIT_TREND_ONLY", base.exit_trend_only)),
         min_mid_crosses=int(_get(cfg, "MIN_MID_CROSSES", base.min_mid_crosses)),
         swing_lookback=int(_get(cfg, "SWING_LOOKBACK", base.swing_lookback)),
         min_range_pct=float(_get(cfg, "MIN_RANGE_PCT", base.min_range_pct)),
@@ -96,6 +103,7 @@ def params_from_config(cfg: object | None) -> GridParams:
         max_inventory_levels=int(_get(cfg, "MAX_INVENTORY_LEVELS", base.max_inventory_levels)),
         level_notional_fraction=float(_get(cfg, "LEVEL_NOTIONAL_FRACTION", base.level_notional_fraction)),
         breakout_buffer_pct=float(_get(cfg, "BREAKOUT_BUFFER_PCT", base.breakout_buffer_pct)),
+        breakout_hard_pct=float(_get(cfg, "BREAKOUT_HARD_PCT", base.breakout_hard_pct)),
         hard_stop_pct=float(_get(cfg, "GRID_HARD_STOP_PCT", base.hard_stop_pct)),
         daily_loss_pct=float(_get(cfg, "DAILY_LOSS_PCT", base.daily_loss_pct)),
         taker_slippage_pct=float(_get(cfg, "TAKER_SLIPPAGE_PCT", base.taker_slippage_pct)),

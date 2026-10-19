@@ -1,4 +1,11 @@
-"""Range-Filter. Kein Grid, solange eine Bedingung fehlt."""
+"""Range-Filter. Kein Grid, solange eine Bedingung fehlt.
+
+Für ein laufendes Grid (holding=True) gibt es optional eine Hysterese:
+ADX- und ER-Schwelle plus Aufschlag, und mit EXIT_TREND_ONLY zählen beim
+Halten nur ADX und ER. Default ist aus — dieselben Filter wie beim Einstieg.
+Im Vergleich vom 18.10.2026 (backtest/exit_variants.md) tauschte die Hysterese
+Regime-Ausstiege gegen Breakouts, ohne robust besser zu sein.
+"""
 
 from __future__ import annotations
 
@@ -35,7 +42,14 @@ class Regime:
         return ", ".join(REASON_DE.get(item, item) for item in self.reasons)
 
 
-def assess(candles_1h: list[Candle], candles_4h: list[Candle] | None, params: GridParams) -> Regime:
+def assess(
+    candles_1h: list[Candle],
+    candles_4h: list[Candle] | None,
+    params: GridParams,
+    holding: bool = False,
+) -> Regime:
+    """holding=True: Prüfung für ein laufendes Grid, mit den Ausstiegsschwellen."""
+    trend_only = holding and params.exit_trend_only
     higher = candles_4h if candles_4h is not None else aggregate(candles_1h, 4)
     if len(candles_1h) < params.min_bars_1h or len(higher) < params.min_bars_4h:
         return Regime(False, ["zu_wenig_daten"])
@@ -46,21 +60,24 @@ def assess(candles_1h: list[Candle], candles_4h: list[Candle] | None, params: Gr
     atr_ratio = atr_pct(candles_1h, params.atr_period)
     efficiency = efficiency_ratio(closes, params.er_lookback)
     crosses = mid_crosses(candles_1h, min(params.swing_lookback, len(candles_1h)))
+    adx_cap_1h = params.adx_max_1h + (params.adx_exit_margin if holding else 0.0)
+    adx_cap_4h = params.adx_max_4h + (params.adx_exit_margin if holding else 0.0)
+    er_cap = params.er_max + (params.er_exit_margin if holding else 0.0)
     reasons: list[str] = []
-    if adx_1h is None or adx_1h >= params.adx_max_1h:
+    if adx_1h is None or adx_1h >= adx_cap_1h:
         reasons.append("adx_1h")
-    if adx_4h is None or adx_4h >= params.adx_max_4h:
+    if adx_4h is None or adx_4h >= adx_cap_4h:
         reasons.append("adx_4h")
-    if efficiency is None or efficiency >= params.er_max:
+    if efficiency is None or efficiency >= er_cap:
         reasons.append("efficiency")
     compressed = (
         width is not None and width <= params.bb_width_max
     ) or (
         atr_ratio is not None and atr_ratio <= params.atr_pct_max
     )
-    if not compressed:
+    if not trend_only and not compressed:
         reasons.append("keine_kompression")
-    if crosses < params.min_mid_crosses:
+    if not trend_only and crosses < params.min_mid_crosses:
         reasons.append("zu_wenig_kreuzungen")
     return Regime(
         ranging=not reasons,

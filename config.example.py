@@ -64,7 +64,8 @@ MAX_MARGIN_FRACTION = 0.50
 MAX_INVENTORY_LEVELS = 3
 DAILY_LOSS_PCT = 0.05
 GRID_HARD_STOP_PCT = 0.06
-BREAKOUT_BUFFER_PCT = 0.0025
+BREAKOUT_BUFFER_PCT = 0.0025  # Stunden-Schluss jenseits Range + Puffer → Ausstieg
+BREAKOUT_HARD_PCT = 0.01  # Preis jenseits Range + 1 % → sofort, auch innerhalb der Stunde
 TAKER_SLIPPAGE_PCT = 0.0002
 COOLDOWN_BARS = 6
 FLATTEN_MAKER_TIMEOUT_S = 20
@@ -86,6 +87,12 @@ ATR_PERIOD = 14
 ATR_PCT_MAX = 0.015
 ER_LOOKBACK = 24
 ER_MAX = 0.35
+# Optionale Hysterese für ein laufendes Grid. Default aus: Ausstieg, sobald ein
+# Einstiegsfilter fehlt. Getestet wurden 6 / 0.15 / True — weniger Regime-
+# Ausstiege, mehr Breakouts, nicht robust besser. backtest/exit_variants.md
+ADX_EXIT_MARGIN = 0.0  # ADX-Ausstieg bei Schwelle + Aufschlag
+ER_EXIT_MARGIN = 0.0  # ER-Ausstieg bei Schwelle + Aufschlag
+EXIT_TREND_ONLY = False  # True: beim Halten nur ADX und ER, ohne Kompression/Kreuzungen
 MIN_MID_CROSSES = 3
 SWING_LOOKBACK = 48
 MIN_RANGE_PCT = 0.008

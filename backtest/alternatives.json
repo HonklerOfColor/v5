@@ -1,0 +1,1162 @@
+{
+ "generated_at": "2026-10-18T16:38:28.553861+00:00",
+ "symbols": [
+  "AAVEUSDT",
+  "ADAUSDT",
+  "APTUSDT",
+  "ARBUSDT",
+  "AVAXUSDT",
+  "BNBUSDT",
+  "BTCUSDT",
+  "DOGEUSDT",
+  "DOTUSDT",
+  "ENAUSDT",
+  "ETHUSDT",
+  "FILUSDT",
+  "HYPEUSDT",
+  "INJUSDT",
+  "LINKUSDT",
+  "LTCUSDT",
+  "NEARUSDT",
+  "ONDOUSDT",
+  "OPUSDT",
+  "PEPEUSDT",
+  "SOLUSDT",
+  "SUIUSDT",
+  "TIAUSDT",
+  "TRXUSDT",
+  "UNIUSDT",
+  "WLDUSDT",
+  "XRPUSDT",
+  "ZECUSDT"
+ ],
+ "funding_proxy": [
+  {
+   "symbol": "AAVEUSDT",
+   "bitget_pa": 6.285055762081783,
+   "binance_pa": 4.582302267657992,
+   "corr": 0.14244725568494432,
+   "binance_year_pa": 2.8328550822669105
+  },
+  {
+   "symbol": "ADAUSDT",
+   "bitget_pa": 4.372672862453531,
+   "binance_pa": 4.830737007434944,
+   "corr": 0.44738954231395134,
+   "binance_year_pa": 1.9289385877513712
+  },
+  {
+   "symbol": "APTUSDT",
+   "bitget_pa": 7.436637546468401,
+   "binance_pa": 3.1875083643122673,
+   "corr": 0.5313792650771268,
+   "binance_year_pa": -13.7483585786106
+  },
+  {
+   "symbol": "ARBUSDT",
+   "bitget_pa": 6.9290297397769525,
+   "binance_pa": 0.7391616356877324,
+   "corr": 0.25712994432535674,
+   "binance_year_pa": 1.888493651736746
+  },
+  {
+   "symbol": "AVAXUSDT",
+   "bitget_pa": 7.532704460966543,
+   "binance_pa": 4.633392769516728,
+   "corr": 0.5533145588398358,
+   "binance_year_pa": -0.31198391681901266
+  },
+  {
+   "symbol": "BNBUSDT",
+   "bitget_pa": 8.395271375464683,
+   "binance_pa": 4.23671375464684,
+   "corr": 0.3165237885470456,
+   "binance_year_pa": 2.1380425502742226
+  },
+  {
+   "symbol": "BTCUSDT",
+   "bitget_pa": 5.661434944237918,
+   "binance_pa": 5.699560483271375,
+   "corr": 0.14672512201302512,
+   "binance_year_pa": 3.329242404021938
+  },
+  {
+   "symbol": "DOGEUSDT",
+   "bitget_pa": 8.719700743494425,
+   "binance_pa": 6.32503343866171,
+   "corr": 0.17798085099726677,
+   "binance_year_pa": 3.0053295932358313
+  },
+  {
+   "symbol": "DOTUSDT",
+   "bitget_pa": 9.520801115241635,
+   "binance_pa": 4.397047806691449,
+   "corr": 0.255218767258037,
+   "binance_year_pa": -5.198349351005485
+  },
+  {
+   "symbol": "ENAUSDT",
+   "bitget_pa": 8.13712987012987,
+   "binance_pa": 6.381062727272728,
+   "corr": 0.08257238443336905,
+   "binance_year_pa": -0.9056155230698947
+  },
+  {
+   "symbol": "ETHUSDT",
+   "bitget_pa": 6.4075817843866165,
+   "binance_pa": 4.453401635687732,
+   "corr": 0.31312552389045295,
+   "binance_year_pa": 2.491590425045704
+  },
+  {
+   "symbol": "FILUSDT",
+   "bitget_pa": 7.440708178438661,
+   "binance_pa": 5.09629282527881,
+   "corr": 0.25818699405708234,
+   "binance_year_pa": -1.5574963711151733
+  },
+  {
+   "symbol": "HYPEUSDT",
+   "bitget_pa": 5.704564007421151,
+   "binance_pa": 6.827501743970316,
+   "corr": 0.5525065510066123,
+   "binance_year_pa": 5.400248867062586
+  },
+  {
+   "symbol": "INJUSDT",
+   "bitget_pa": 4.112559479553903,
+   "binance_pa": -0.7817404460966542,
+   "corr": 0.5469744552918991,
+   "binance_year_pa": -10.387544341864716
+  },
+  {
+   "symbol": "LINKUSDT",
+   "bitget_pa": 7.406921933085502,
+   "binance_pa": 6.051930669144982,
+   "corr": 0.32755627204564447,
+   "binance_year_pa": 4.5818253153564905
+  },
+  {
+   "symbol": "LTCUSDT",
+   "bitget_pa": 8.496223048327138,
+   "binance_pa": 5.482534739776951,
+   "corr": 0.31850558965559583,
+   "binance_year_pa": 3.0932618967093233
+  },
+  {
+   "symbol": "NEARUSDT",
+   "bitget_pa": 8.542221189591078,
+   "binance_pa": 6.127440892193308,
+   "corr": 0.2541928230976046,
+   "binance_year_pa": 3.5195772257769655
+  },
+  {
+   "symbol": "ONDOUSDT",
+   "bitget_pa": 8.545875695732839,
+   "binance_pa": 5.329440166975881,
+   "corr": 0.3278701020249949,
+   "binance_year_pa": 0.13509068524440396
+  },
+  {
+   "symbol": "OPUSDT",
+   "bitget_pa": 9.294066914498142,
+   "binance_pa": 4.193276040892194,
+   "corr": 0.2860048648387524,
+   "binance_year_pa": -0.4376917184643508
+  },
+  {
+   "symbol": "PEPEUSDT",
+   "bitget_pa": 5.0679368029739775,
+   "binance_pa": 4.362247973977695,
+   "corr": 0.6630033579414719,
+   "binance_year_pa": -0.784272230347349
+  },
+  {
+   "symbol": "SOLUSDT",
+   "bitget_pa": 4.727224907063197,
+   "binance_pa": 3.4471536245353165,
+   "corr": 0.48282632388629854,
+   "binance_year_pa": -0.471300411334552
+  },
+  {
+   "symbol": "SUIUSDT",
+   "bitget_pa": 6.8113884758364325,
+   "binance_pa": 4.825156171003718,
+   "corr": 0.40586405693841804,
+   "binance_year_pa": 3.125114986288848
+  },
+  {
+   "symbol": "TIAUSDT",
+   "bitget_pa": 7.770233766233768,
+   "binance_pa": 6.1790098330241205,
+   "corr": 0.15956090161522,
+   "binance_year_pa": 1.7411240338053908
+  },
+  {
+   "symbol": "TRXUSDT",
+   "bitget_pa": -5.606074349442379,
+   "binance_pa": -11.47418749070632,
+   "corr": 0.8457790209268974,
+   "binance_year_pa": -8.648887527422305
+  },
+  {
+   "symbol": "UNIUSDT",
+   "bitget_pa": 8.026065055762082,
+   "binance_pa": 7.013727379182155,
+   "corr": 0.23135973029754164,
+   "binance_year_pa": 4.428308117001828
+  },
+  {
+   "symbol": "WLDUSDT",
+   "bitget_pa": 7.247760223048327,
+   "binance_pa": 0.3861686431226767,
+   "corr": 0.6413765222242168,
+   "binance_year_pa": -5.993111160877512
+  },
+  {
+   "symbol": "XRPUSDT",
+   "bitget_pa": 7.466353159851301,
+   "binance_pa": 3.647937546468402,
+   "corr": 0.5084433666267391,
+   "binance_year_pa": -0.03990344149908588
+  },
+  {
+   "symbol": "ZECUSDT",
+   "bitget_pa": 5.937423791821562,
+   "binance_pa": 5.973754182156135,
+   "corr": 0.4812097328622107,
+   "binance_year_pa": -8.530399319012798
+  }
+ ],
+ "carry": {
+  "rotation": [
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "IS",
+    "strategy": "carry_7d",
+    "net": -1.7441619007041567,
+    "end_equity": 48.25583809929584,
+    "income": 0.46804402596886463,
+    "fees": 2.2122059266731235,
+    "switches": 25,
+    "weeks": 35,
+    "weeks_in_cash": 6,
+    "max_drawdown_pct": 3.412338083999316
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "OOS",
+    "strategy": "carry_7d",
+    "net": -0.7514650477597229,
+    "end_equity": 49.24853495224028,
+    "income": 0.4111413800570896,
+    "fees": 1.1626064278167714,
+    "switches": 13,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 1.4237194790366203
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "Jahr",
+    "strategy": "carry_7d",
+    "net": -2.471274720447184,
+    "end_equity": 47.528725279552816,
+    "income": 0.8629365153240554,
+    "fees": 3.334211235771288,
+    "switches": 38,
+    "weeks": 52,
+    "weeks_in_cash": 6,
+    "max_drawdown_pct": 4.866104940896804
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.001,
+    "section": "IS",
+    "strategy": "carry_7d",
+    "net": -1.6414007233300083,
+    "end_equity": 48.35859927666999,
+    "income": 0.6669511450848695,
+    "fees": 2.30835186841483,
+    "switches": 26,
+    "weeks": 35,
+    "weeks_in_cash": 1,
+    "max_drawdown_pct": 3.369067261488313
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.001,
+    "section": "OOS",
+    "strategy": "carry_7d",
+    "net": -1.0893742722756485,
+    "end_equity": 48.91062572772435,
+    "income": 0.4247492694739347,
+    "fees": 1.5141235417495953,
+    "switches": 17,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 2.140462275987801
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.001,
+    "section": "Jahr",
+    "strategy": "carry_7d",
+    "net": -2.6944378318300224,
+    "end_equity": 47.30556216816998,
+    "income": 1.078350243947924,
+    "fees": 3.772788075777911,
+    "switches": 43,
+    "weeks": 52,
+    "weeks_in_cash": 1,
+    "max_drawdown_pct": 5.488168800942372
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "IS",
+    "strategy": "carry_28d",
+    "net": -0.7742309522706279,
+    "end_equity": 49.22576904772937,
+    "income": 0.3873378253616811,
+    "fees": 1.1615687776322563,
+    "switches": 13,
+    "weeks": 35,
+    "weeks_in_cash": 9,
+    "max_drawdown_pct": 1.4719430673363831
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "OOS",
+    "strategy": "carry_28d",
+    "net": 0.11733423429791401,
+    "end_equity": 50.117334234297914,
+    "income": 0.4777620491794207,
+    "fees": 0.36042781488150105,
+    "switches": 4,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 0.1791374626432968
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.001,
+    "section": "Jahr",
+    "strategy": "carry_28d",
+    "net": -0.6541350568165996,
+    "end_equity": 49.3458649431834,
+    "income": 0.8623174904018266,
+    "fees": 1.516452547218382,
+    "switches": 17,
+    "weeks": 52,
+    "weeks_in_cash": 9,
+    "max_drawdown_pct": 1.659916978764102
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "IS",
+    "strategy": "carry_7d",
+    "net": -2.9369574529017086,
+    "end_equity": 47.06304254709829,
+    "income": 0.46264454510602543,
+    "fees": 3.399601998007733,
+    "switches": 25,
+    "weeks": 35,
+    "weeks_in_cash": 6,
+    "max_drawdown_pct": 5.752641286681964
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "OOS",
+    "strategy": "carry_7d",
+    "net": -1.3882800762398801,
+    "end_equity": 48.61171992376012,
+    "income": 0.4089801813163921,
+    "fees": 1.7972602575563021,
+    "switches": 13,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 2.6496547601487492
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "Jahr",
+    "strategy": "carry_7d",
+    "net": -4.2454829638858556,
+    "end_equity": 45.754517036114144,
+    "income": 0.845740922795198,
+    "fees": 5.09122388668107,
+    "switches": 38,
+    "weeks": 52,
+    "weeks_in_cash": 6,
+    "max_drawdown_pct": 8.371519527922217
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.002,
+    "section": "IS",
+    "strategy": "carry_7d",
+    "net": -2.883930279568105,
+    "end_equity": 47.116069720431895,
+    "income": 0.661672852703561,
+    "fees": 3.5456031322716743,
+    "switches": 26,
+    "weeks": 35,
+    "weeks_in_cash": 1,
+    "max_drawdown_pct": 5.668903480856642
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.002,
+    "section": "OOS",
+    "strategy": "carry_7d",
+    "net": -1.9147683791449666,
+    "end_equity": 48.08523162085503,
+    "income": 0.4212605205707902,
+    "fees": 2.3360288997157417,
+    "switches": 17,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 3.7437251000840206
+   },
+   {
+    "variant": "Rotation w\u00f6chentlich, 28 Coins",
+    "spot_fee": 0.002,
+    "section": "Jahr",
+    "strategy": "carry_7d",
+    "net": -4.6877065545247305,
+    "end_equity": 45.31229344547527,
+    "income": 1.0592141559817783,
+    "fees": 5.746920710506496,
+    "switches": 43,
+    "weeks": 52,
+    "weeks_in_cash": 1,
+    "max_drawdown_pct": 9.294549964449772
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "IS",
+    "strategy": "carry_28d",
+    "net": -1.4107516030572569,
+    "end_equity": 48.58924839694274,
+    "income": 0.3849044130027554,
+    "fees": 1.7956560160600183,
+    "switches": 13,
+    "weeks": 35,
+    "weeks_in_cash": 9,
+    "max_drawdown_pct": 2.6972786200152115
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "OOS",
+    "strategy": "carry_28d",
+    "net": -0.08296458544769791,
+    "end_equity": 49.9170354145523,
+    "income": 0.4767192528070571,
+    "fees": 0.5596838382547364,
+    "switches": 4,
+    "weeks": 17,
+    "weeks_in_cash": 0,
+    "max_drawdown_pct": 0.31746088872937406
+   },
+   {
+    "variant": "Rotation 28-Tage-Fenster, 10 liquide",
+    "spot_fee": 0.002,
+    "section": "Jahr",
+    "strategy": "carry_28d",
+    "net": -1.486874068359981,
+    "end_equity": 48.51312593164002,
+    "income": 0.8527310791423798,
+    "fees": 2.339605147502277,
+    "switches": 17,
+    "weeks": 52,
+    "weeks_in_cash": 9,
+    "max_drawdown_pct": 3.108648347089229
+   }
+  ],
+  "hold": [
+   {
+    "symbol": "BTCUSDT",
+    "income": 0.8315505000000001,
+    "net": 0.7415505000000001
+   },
+   {
+    "symbol": "ETHUSDT",
+    "income": 0.62232875,
+    "net": 0.53232875
+   },
+   {
+    "symbol": "SOLUSDT",
+    "income": -0.11771749999999997,
+    "net": -0.20771749999999997
+   },
+   {
+    "symbol": "XRPUSDT",
+    "income": -0.00996674999999999,
+    "net": -0.09996675
+   },
+   {
+    "symbol": "DOGEUSDT",
+    "income": 0.75064625,
+    "net": 0.66064625
+   },
+   {
+    "symbol": "BNBUSDT",
+    "income": 0.5340225,
+    "net": 0.4440225
+   },
+   {
+    "symbol": "ADAUSDT",
+    "income": 0.48179425000000003,
+    "net": 0.39179425
+   },
+   {
+    "symbol": "SUIUSDT",
+    "income": 0.78056525,
+    "net": 0.69056525
+   },
+   {
+    "symbol": "LINKUSDT",
+    "income": 1.1444102500000002,
+    "net": 1.05441025
+   },
+   {
+    "symbol": "AVAXUSDT",
+    "income": -0.07792474999999997,
+    "net": -0.16792474999999996
+   }
+  ]
+ },
+ "momentum": [
+  {
+   "lookback": 14,
+   "long_short": true,
+   "equity": 50.0,
+   "is": 11.467750030814145,
+   "oos": -3.5046493955254903,
+   "full": 5.587908689923665,
+   "dd": 29.361859446149392,
+   "trades": 176,
+   "fees": 1.7771574794906277
+  },
+  {
+   "lookback": 14,
+   "long_short": true,
+   "equity": 1000.0,
+   "is": 164.5881232120296,
+   "oos": -89.66566537347774,
+   "full": 38.91596672137689,
+   "dd": 34.26112096421742,
+   "trades": 193,
+   "fees": 38.87707745043165
+  },
+  {
+   "lookback": 14,
+   "long_short": false,
+   "equity": 50.0,
+   "is": -10.275513344628642,
+   "oos": 5.141258203709057,
+   "full": -6.50362398225068,
+   "dd": 71.27817080751927,
+   "trades": 85,
+   "fees": 1.1397301840390917
+  },
+  {
+   "lookback": 14,
+   "long_short": false,
+   "equity": 1000.0,
+   "is": -312.2274116189684,
+   "oos": 94.97177498641918,
+   "full": -279.8403818018762,
+   "dd": 75.35043802084093,
+   "trades": 90,
+   "fees": 22.9991365098492
+  },
+  {
+   "lookback": 28,
+   "long_short": true,
+   "equity": 50.0,
+   "is": 4.7287331330931295,
+   "oos": -8.230449933015244,
+   "full": -5.253086596859461,
+   "dd": 27.420200067191185,
+   "trades": 121,
+   "fees": 1.057039994456544
+  },
+  {
+   "lookback": 28,
+   "long_short": true,
+   "equity": 1000.0,
+   "is": 42.78401074149633,
+   "oos": -123.57059245319704,
+   "full": -97.8833778291214,
+   "dd": 28.507865686228502,
+   "trades": 141,
+   "fees": 24.00719873088658
+  },
+  {
+   "lookback": 28,
+   "long_short": false,
+   "equity": 50.0,
+   "is": -22.54635548156179,
+   "oos": 2.89120282863324,
+   "full": -22.87670037931064,
+   "dd": 63.31609235807319,
+   "trades": 56,
+   "fees": 0.559411629341448
+  },
+  {
+   "lookback": 28,
+   "long_short": false,
+   "equity": 1000.0,
+   "is": -541.6842019480629,
+   "oos": 100.75892259456145,
+   "full": -514.1550911517257,
+   "dd": 69.79606421432122,
+   "trades": 64,
+   "fees": 11.768311827728512
+  },
+  {
+   "lookback": 56,
+   "long_short": true,
+   "equity": 50.0,
+   "is": 13.20584205502039,
+   "oos": -15.86049667379671,
+   "full": -3.5677362311058616,
+   "dd": 32.40203873373233,
+   "trades": 83,
+   "fees": 0.831690401122584
+  },
+  {
+   "lookback": 56,
+   "long_short": true,
+   "equity": 1000.0,
+   "is": 288.30658269863125,
+   "oos": -209.2052838578427,
+   "full": 25.97583009735763,
+   "dd": 26.536827042707557,
+   "trades": 89,
+   "fees": 18.684229733724322
+  },
+  {
+   "lookback": 56,
+   "long_short": false,
+   "equity": 50.0,
+   "is": 5.376198084396471,
+   "oos": 12.901221888161245,
+   "full": 17.007791498591317,
+   "dd": 36.40009618647302,
+   "trades": 35,
+   "fees": 0.6164880046115279
+  },
+  {
+   "lookback": 56,
+   "long_short": false,
+   "equity": 1000.0,
+   "is": 94.77683756090187,
+   "oos": 343.28278281954795,
+   "full": 440.13786144011965,
+   "dd": 37.74695621705621,
+   "trades": 36,
+   "fees": 13.986386443929788
+  }
+ ],
+ "pullback": [
+  {
+   "variant": "long+short",
+   "is": {
+    "sum": -31.660454677738052,
+    "positive": 3,
+    "trades": 1044,
+    "fees": 10.485005379605065
+   },
+   "oos": {
+    "sum": -21.504473588679424,
+    "positive": 4,
+    "trades": 517,
+    "fees": 6.296357833298304
+   },
+   "full": {
+    "sum": -52.54973884109927,
+    "positive": 2,
+    "trades": 1547,
+    "fees": 16.519363765832217
+   }
+  },
+  {
+   "variant": "nur long",
+   "is": {
+    "sum": -7.839818521830274,
+    "positive": 5,
+    "trades": 317,
+    "fees": 3.619803216490847
+   },
+   "oos": {
+    "sum": -6.79142711549229,
+    "positive": 7,
+    "trades": 265,
+    "fees": 3.159673625806584
+   },
+   "full": {
+    "sum": -13.61180366288437,
+    "positive": 6,
+    "trades": 581,
+    "fees": 6.730619296645932
+   }
+  },
+  {
+   "variant": "long+short, RSI 5/95",
+   "is": {
+    "sum": -16.745714949405986,
+    "positive": 7,
+    "trades": 568,
+    "fees": 5.704239695120135
+   },
+   "oos": {
+    "sum": -16.943678176444976,
+    "positive": 7,
+    "trades": 266,
+    "fees": 3.1834022131364166
+   },
+   "full": {
+    "sum": -33.6095203540178,
+    "positive": 4,
+    "trades": 830,
+    "fees": 8.821477568151854
+   }
+  }
+ ],
+ "trend_per_symbol": [
+  {
+   "funding": "Pauschale 0,01 %/8h",
+   "is": {
+    "sum": 2.5140528763426104,
+    "positive": 12,
+    "funding": 5.635784240640001
+   },
+   "oos": {
+    "sum": 29.09327595008454,
+    "positive": 18,
+    "funding": 3.28156417236
+   },
+   "full": {
+    "sum": 25.708454207005303,
+    "positive": 14,
+    "funding": 8.958505028080003
+   }
+  },
+  {
+   "funding": "echt (Binance-Proxy)",
+   "is": {
+    "sum": 6.656523455271241,
+    "positive": 13,
+    "funding": 2.2247750736933853
+   },
+   "oos": {
+    "sum": 30.528429278216194,
+    "positive": 19,
+    "funding": 1.6731946059727782
+   },
+   "full": {
+    "sum": 31.346773675519607,
+    "positive": 16,
+    "funding": 3.8940104771236412
+   }
+  }
+ ],
+ "trend_scale": [
+  {
+   "universe": "28 Coins",
+   "equity": 50.0,
+   "is": -6.557184057465555,
+   "oos": -1.8961090334543087,
+   "full": -7.309237276187197,
+   "dd": 34.039528465447454,
+   "trades": 325,
+   "zu_klein": 571,
+   "pf": 0.8712296413363764
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 200.0,
+   "is": -11.78627166022099,
+   "oos": -24.825400815080087,
+   "full": -38.44248046330705,
+   "dd": 36.69104233250104,
+   "trades": 351,
+   "zu_klein": 2,
+   "pf": 0.850307492179392
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 500.0,
+   "is": -26.836090917186482,
+   "oos": -58.2672798652294,
+   "full": -81.73710443909255,
+   "dd": 37.30592615322222,
+   "trades": 349,
+   "zu_klein": 0,
+   "pf": 0.8748912988442773
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 1000.0,
+   "is": -55.40986638637514,
+   "oos": -112.53870455823335,
+   "full": -158.285600713735,
+   "dd": 37.62770732823064,
+   "trades": 349,
+   "zu_klein": 0,
+   "pf": 0.8798823020342548
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 3000.0,
+   "is": -171.3210369388944,
+   "oos": -336.49085956509634,
+   "full": -482.9390488503773,
+   "dd": 37.87246724997863,
+   "trades": 349,
+   "zu_klein": 0,
+   "pf": 0.878686180015417
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 10000.0,
+   "is": -577.3498659556044,
+   "oos": -1117.9580755997122,
+   "full": -1613.5963969691966,
+   "dd": 37.94328568955899,
+   "trades": 349,
+   "zu_klein": 0,
+   "pf": 0.8786407765764443
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 50.0,
+   "is": -3.9957244817048263,
+   "oos": 3.226073912527667,
+   "full": -1.8408761789665888,
+   "dd": 30.288596079911585,
+   "trades": 227,
+   "zu_klein": 227,
+   "pf": 0.9561959292533421
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 200.0,
+   "is": -24.08389271060659,
+   "oos": -2.31578770028662,
+   "full": -27.412119376089237,
+   "dd": 30.879784150891943,
+   "trades": 263,
+   "zu_klein": 6,
+   "pf": 0.8569659456460988
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 500.0,
+   "is": -61.048437133817686,
+   "oos": -4.763698782670417,
+   "full": -63.119298697565625,
+   "dd": 31.153676733837006,
+   "trades": 264,
+   "zu_klein": 0,
+   "pf": 0.8728997203600873
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 1000.0,
+   "is": -124.9735276558223,
+   "oos": -13.951990270882675,
+   "full": -129.5484306837467,
+   "dd": 31.520651829793607,
+   "trades": 264,
+   "zu_klein": 0,
+   "pf": 0.8714324982127852
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 3000.0,
+   "is": -392.1486564400316,
+   "oos": -42.2386802868682,
+   "full": -410.8792731446397,
+   "dd": 31.950392282825245,
+   "trades": 264,
+   "zu_klein": 0,
+   "pf": 0.8653956667161025
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 10000.0,
+   "is": -1325.288431597035,
+   "oos": -141.90671363714137,
+   "full": -1388.4335658136297,
+   "dd": 32.05204249116995,
+   "trades": 264,
+   "zu_klein": 0,
+   "pf": 0.8639714298916364
+  }
+ ],
+ "trend_all_signals": [
+  {
+   "universe": "28 Coins",
+   "equity": 300.0,
+   "risk": 0.0025,
+   "is": -8.059550843264162,
+   "oos": 9.311476594726855,
+   "full": 3.485799774249301,
+   "dd": 25.322661632991306,
+   "trades": 970,
+   "zu_klein": 531,
+   "pf": 1.0117861245677147
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 300.0,
+   "risk": 0.005,
+   "is": -21.867663197272805,
+   "oos": -39.13471478227285,
+   "full": -56.44085470257542,
+   "dd": 33.680331248463695,
+   "trades": 865,
+   "zu_klein": 888,
+   "pf": 0.8757599006263033
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 300.0,
+   "risk": 0.01,
+   "is": -75.3087337979197,
+   "oos": -48.04094084090775,
+   "full": -103.38456694565804,
+   "dd": 45.44551656671087,
+   "trades": 607,
+   "zu_klein": 1751,
+   "pf": 0.7896100249092364
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 1000.0,
+   "risk": 0.0025,
+   "is": -42.93004715363145,
+   "oos": 31.334193660400615,
+   "full": -14.14310644146201,
+   "dd": 27.76697731985053,
+   "trades": 1090,
+   "zu_klein": 161,
+   "pf": 0.9872272185944385
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 1000.0,
+   "risk": 0.005,
+   "is": -94.21065548800993,
+   "oos": -109.88929526341894,
+   "full": -192.68681974211404,
+   "dd": 36.428651761970414,
+   "trades": 903,
+   "zu_klein": 757,
+   "pf": 0.8760094008189784
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 1000.0,
+   "risk": 0.01,
+   "is": -281.3539743449759,
+   "oos": -155.0640465576049,
+   "full": -383.4325214353224,
+   "dd": 47.10992941053166,
+   "trades": 649,
+   "zu_klein": 1599,
+   "pf": 0.7604751127306448
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 3000.0,
+   "risk": 0.0025,
+   "is": -150.99057727862373,
+   "oos": 95.77361787261589,
+   "full": -60.77500342397434,
+   "dd": 28.35127330084952,
+   "trades": 1088,
+   "zu_klein": 160,
+   "pf": 0.982074694344666
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 3000.0,
+   "risk": 0.005,
+   "is": -245.7560069507449,
+   "oos": -346.3964509781217,
+   "full": -547.1661669891869,
+   "dd": 35.700884169106736,
+   "trades": 912,
+   "zu_klein": 736,
+   "pf": 0.8828197967102486
+  },
+  {
+   "universe": "28 Coins",
+   "equity": 3000.0,
+   "risk": 0.01,
+   "is": -739.7909540837877,
+   "oos": -349.94695078408176,
+   "full": -991.0655882314259,
+   "dd": 45.488968558718305,
+   "trades": 690,
+   "zu_klein": 1427,
+   "pf": 0.7950563020497484
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 300.0,
+   "risk": 0.0025,
+   "is": -8.945450515304458,
+   "oos": 15.578621678552054,
+   "full": 8.319232806725779,
+   "dd": 14.681488146903538,
+   "trades": 332,
+   "zu_klein": 164,
+   "pf": 1.0795527747814198
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 300.0,
+   "risk": 0.005,
+   "is": -22.89483318705203,
+   "oos": 14.279727779573477,
+   "full": -7.9199033789705595,
+   "dd": 28.755397579804892,
+   "trades": 374,
+   "zu_klein": 67,
+   "pf": 0.9659990841360934
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 300.0,
+   "risk": 0.01,
+   "is": -43.90377024212148,
+   "oos": 1.0866526481829055,
+   "full": -42.25624953439075,
+   "dd": 38.72439088810483,
+   "trades": 323,
+   "zu_klein": 206,
+   "pf": 0.8741171426045031
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 1000.0,
+   "risk": 0.0025,
+   "is": -35.93870009983016,
+   "oos": 54.61623624439562,
+   "full": 19.65839687470975,
+   "dd": 16.56920137440923,
+   "trades": 389,
+   "zu_klein": 4,
+   "pf": 1.046478309553406
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 1000.0,
+   "risk": 0.005,
+   "is": -77.32055039024885,
+   "oos": 38.63412903309154,
+   "full": -39.516856838393096,
+   "dd": 30.36036918713142,
+   "trades": 382,
+   "zu_klein": 39,
+   "pf": 0.9528929636120894
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 1000.0,
+   "risk": 0.01,
+   "is": -153.69346182292531,
+   "oos": -3.586347422898598,
+   "full": -158.4039241196224,
+   "dd": 38.569936018130065,
+   "trades": 327,
+   "zu_klein": 193,
+   "pf": 0.8598344349849137
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 3000.0,
+   "risk": 0.0025,
+   "is": -119.55811714468291,
+   "oos": 167.0664136041737,
+   "full": 45.423900138955105,
+   "dd": 17.050024171031957,
+   "trades": 390,
+   "zu_klein": 0,
+   "pf": 1.0343240382878407
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 3000.0,
+   "risk": 0.005,
+   "is": -245.75981400133514,
+   "oos": 107.86113704622721,
+   "full": -140.33294780248343,
+   "dd": 30.83268592482846,
+   "trades": 382,
+   "zu_klein": 39,
+   "pf": 0.945209643711714
+  },
+  {
+   "universe": "10 liquide",
+   "equity": 3000.0,
+   "risk": 0.01,
+   "is": -441.601999624379,
+   "oos": -39.69835135984977,
+   "full": -479.77740818541497,
+   "dd": 38.19440076033244,
+   "trades": 325,
+   "zu_klein": 209,
+   "pf": 0.8601768745558347
+  }
+ ],
+ "quarters": [
+  {
+   "label": "2025-10-18 \u2013 2026-01-17",
+   "bh": -19.825760425071323,
+   "trend28": 13.018195115282879,
+   "trend10": -95.29511029067237,
+   "momentum": -229.3999595441062,
+   "carry": -0.6364600734465995
+  },
+  {
+   "label": "2026-01-17 \u2013 2026-04-19",
+   "bh": -34.71082888049045,
+   "trend28": -51.059542003275055,
+   "trend10": -79.23157110810314,
+   "momentum": 143.80862188871356,
+   "carry": -0.6410030778134725
+  },
+  {
+   "label": "2026-04-19 \u2013 2026-07-19",
+   "bh": -15.315476605201317,
+   "trend28": -80.34397541546264,
+   "trend10": 58.47603482745217,
+   "momentum": 25.251497526950516,
+   "carry": -0.5596726213470546
+  },
+  {
+   "label": "2026-07-19 \u2013 2026-10-18",
+   "bh": 30.442760327324883,
+   "trend28": -16.737842252905125,
+   "trend10": 11.480050539654371,
+   "momentum": -17.721656337128593,
+   "carry": -0.685677087654355
+  }
+ ]
+}

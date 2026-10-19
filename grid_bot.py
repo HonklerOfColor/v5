@@ -241,18 +241,22 @@ class Runner:
                 self.flatten(grid, "daily_loss", mark)
                 notify(self.cfg, f"Tagesverlust-Limit, Grid {symbol} geschlossen")
                 continue
-            if grid.outside(mark, self.params.breakout_buffer_pct):
-                self.flatten(grid, "breakout", mark)
+            # Ticker nur für den Notstopp weit draußen. Der normale Breakout zählt
+            # wie im Backtest den Stunden-Schluss, damit ein Docht nicht ausstoppt.
+            if grid.outside(mark, self.params.breakout_hard_pct):
+                self.flatten(grid, "breakout_hard", mark)
                 continue
             if grid.net_pnl(mark) <= -grid.hard_stop_usdt:
                 self.flatten(grid, "hard_stop", mark)
                 continue
-            regime = assess(
-                load_candles(self.client, symbol, "1H", 200),
-                load_candles(self.client, symbol, "4H", 120),
-                self.params,
-            )
-            if not regime.ranging:
+            candles_1h = load_candles(self.client, symbol, "1H", 200)
+            candles_4h = load_candles(self.client, symbol, "4H", 120)
+            if len(candles_1h) < self.params.min_bars_1h or len(candles_4h) < self.params.min_bars_4h:
+                logger.warning(f"{symbol}: Kerzen unvollständig, Breakout und Regime erst nächste Runde.")
+            elif grid.outside(candles_1h[-1].close, self.params.breakout_buffer_pct):
+                self.flatten(grid, "breakout", mark)
+                continue
+            elif not assess(candles_1h, candles_4h, self.params, holding=True).ranging:
                 self.flatten(grid, "regime", mark)
                 continue
             if symbol in self.frozen:
@@ -505,13 +509,22 @@ class Runner:
         signature = (round(grid.long_qty, 8), round(grid.short_qty, 8))
         if self.stop_sig.get(grid.symbol) == signature:
             return
-        self.stop_sig[grid.symbol] = signature
+        # Börsen-Stop am Notstopp, nicht am Breakout-Puffer: ein Docht durch den
+        # Puffer soll nicht ausstoppen, der Stunden-Schluss entscheidet.
+        stops = []
         if grid.long_qty > 0:
-            price = format_number(grid.lower * (1.0 - self.params.breakout_buffer_pct), spec.price_place)
-            self.client.place_position_stop(grid.symbol, "long", price)
+            stops.append(("long", grid.lower * (1.0 - self.params.breakout_hard_pct)))
         if grid.short_qty > 0:
-            price = format_number(grid.upper * (1.0 + self.params.breakout_buffer_pct), spec.price_place)
-            self.client.place_position_stop(grid.symbol, "short", price)
+            stops.append(("short", grid.upper * (1.0 + self.params.breakout_hard_pct)))
+        ok = True
+        for side, level in stops:
+            price = format_number(level, spec.price_place)
+            result = self.client.place_position_stop(grid.symbol, side, price)
+            if result.get("code") != "00000":
+                ok = False
+                logger.warning(f"Börsen-Stop {grid.symbol} {side} @ {price}: {result.get('code')} {result.get('msg', '')}")
+        if ok:
+            self.stop_sig[grid.symbol] = signature
 
     def save(self) -> None:
         payload = export_state(
